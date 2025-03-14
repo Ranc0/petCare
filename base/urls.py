@@ -11,8 +11,12 @@ urlpatterns = [
     path('',views.index , name='index'),
     #####
     path('account/sign_in' ,views.account.sign_in , name = 'sign_in' ),
+    path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
     #####
     path ('pet/add' , views.pet.add_pet, name = 'add_pet'),
+    path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
+    path ('pet/get/<str:id>' , views.pet.get_pet, name = 'get_pet'),
+    path ('pet/delete/<str:id>' , views.pet.delete_pet, name = 'delete_pet'),
 
     #####
     path('vaccination/dog/update/<str:id>' , views.vaccination.update_dog_vaccination, name = 'update_dog_vaccination'),

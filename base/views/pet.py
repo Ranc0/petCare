@@ -30,17 +30,43 @@ def add_pet (request):
 @api_view(['PUT'])
 def update_pet (request , id ):
     #you do it , make sure the pet the user owns the pet he's updating 
-    pass
+    try:
+        pet = Pet.objects.get(id=id)
+    except Pet.DoesNotExist:
+        return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
+    if pet.user != request.user:
+        return Response({"message": "user does not have the pet"}, status= status.HTTP_409_CONFLICT)
+    
+    field,value = next(iter(request.data.items()))
+    if hasattr(pet, field):
+        setattr(pet, field, value)
+    pet.save()
+    return Response({"message":field+" updated successfully"} , status = status.HTTP_200_OK)
+    
 
 @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_pet (request , id ):
     #you do it , make sure the pet the user owns the pet he's deleting
+    try:
+        pet = Pet.objects.get(id=id)
+    except Pet.DoesNotExist:
+        return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
+    if pet.user != request.user:
+        return Response({"message": "user does not have the pet"}, status= status.HTTP_409_CONFLICT)
+    
+    pet.delete()
+    return Response({"message":"pet deleted suceessfully"}, status= status.HTTP_200_OK)
     pass
 
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_pet (request , id ):
     #you do it 
-    pass
+    try:
+        pet = Pet.objects.get(id=id)
+    except Pet.DoesNotExist:
+        return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
+    return Response(PetSerializer(pet).data , status=status.HTTP_200_OK )
+    
     
