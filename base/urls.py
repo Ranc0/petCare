@@ -23,6 +23,9 @@ urlpatterns = [
     path('vaccination/cat/update/<str:id>' , views.vaccination.update_cat_vaccination, name = 'update_cat_vaccination'),
 
     #####
-    path ('post/adoption/add/<str:id>', views.post.add_adoption_post , name = 'add_adoption_post')
+    path ('post/adoption/add/<str:id>', views.post.add_adoption_post , name = 'add_adoption_post'),
+    path ('post/adoption/delete/<str:id>', views.post.delete_adoption_post , name = 'delete_adoption_post'),
+    path ('post/adoption/get/<str:id>', views.post.get_adoption_post , name = 'get_adoption_post'),
+    path ('posts/adoption/get', views.post.get_adoption_posts , name = 'get_adoption_posts'),
 
 ]
