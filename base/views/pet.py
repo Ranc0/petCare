@@ -30,11 +30,10 @@ def add_pet (request):
 @permission_classes([IsAuthenticated])
 @api_view(['PUT'])
 def update_pet (request , id ):
-    #you do it , make sure the pet the user owns the pet he's updating 
     try:
         pet = Pet.objects.get(id = id)
         if pet.user != request.user:
-            return Response({"message":"user does not have this pet"}, status= status.HTTP_404_NOT_FOUND)
+            return Response({"message":"user does not have this pet"}, status= status.HTTP_401_UNAUTHORIZED)
     
         obj = PetSerializer(data=request.data, many=False)
         if obj.is_valid():
@@ -43,7 +42,7 @@ def update_pet (request , id ):
             pet.save()
             return Response(PetSerializer(pet).data, status=200) 
         else:
-            return Response(obj.errors, status=400)
+            return Response(obj.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except Pet.DoesNotExist:
         return Response({"message": "pet not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -52,28 +51,25 @@ def update_pet (request , id ):
 @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_pet (request , id ):
-    #you do it , make sure the pet the user owns the pet he's deleting
     try:
         pet = Pet.objects.get(id=id)
     except Pet.DoesNotExist:
         return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
     if pet.user != request.user:
-        return Response({"message": "user does not have the pet"}, status= status.HTTP_409_CONFLICT)
+        return Response({"message": "user does not have the pet"},status= status.HTTP_401_UNAUTHORIZED)
     
     pet.delete()
     return Response({"message":"pet deleted suceessfully"}, status= status.HTTP_200_OK)
-    pass
 
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_pet (request , id ):
-    #you do it 
     try:
         pet = Pet.objects.get(id=id)
     except Pet.DoesNotExist:
         return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
     if request.user != pet.user:
-        return Response({"message": "user does not have the pet"}, status= status.HTTP_409_CONFLICT)
+        return Response({"message": "user does not have the pet"}, status= status.HTTP_401_UNAUTHORIZED)
     return Response(PetSerializer(pet).data , status=status.HTTP_200_OK )
     
     
