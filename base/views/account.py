@@ -32,7 +32,8 @@ def sign_up(request):
         return Response({"message":"username already exists"} , status = status.HTTP_409_CONFLICT)
     if password != confirm_password:
         return Response({"message":"passwords do not match"} , status = status.HTTP_409_CONFLICT)
-    user = User.objects.create(username = username, password = password)
+    user = User.objects.create(username = username)
+    user.set_password(password)
     user.save()
     refresh = RefreshToken.for_user(user)
     return Response({
