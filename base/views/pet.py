@@ -72,8 +72,6 @@ def get_pet (request , id ):
         pet = Pet.objects.get(id=id)
     except Pet.DoesNotExist:
         return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
-    if request.user != pet.user:
-        return Response({"message": "user does not have the pet"}, status= status.HTTP_409_CONFLICT)
     return Response(PetSerializer(pet).data , status=status.HTTP_200_OK )
     
     
