@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -31,17 +32,21 @@ def add_pet (request):
 def update_pet (request , id ):
     #you do it , make sure the pet the user owns the pet he's updating 
     try:
-        pet = Pet.objects.get(id=id)
-    except Pet.DoesNotExist:
-        return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
-    if pet.user != request.user:
-        return Response({"message": "user does not have the pet"}, status= status.HTTP_409_CONFLICT)
+        pet = Pet.objects.get(id = id)
+        if pet.user != request.user:
+            return Response({"message":"user does not have this pet"}, status= status.HTTP_404_NOT_FOUND)
     
-    field,value = next(iter(request.data.items()))
-    if hasattr(pet, field):
-        setattr(pet, field, value)
-    pet.save()
-    return Response({"message":field+" updated successfully"} , status = status.HTTP_200_OK)
+        obj = PetSerializer(data=request.data, many=False)
+        if obj.is_valid():
+            for attr, value in obj.data.items():
+                setattr(pet, attr, value)
+            pet.save()
+            return Response(PetSerializer(pet).data, status=200) 
+        else:
+            return Response(obj.errors, status=400)
+
+    except Pet.DoesNotExist:
+        return Response({"message": "pet not found"}, status=status.HTTP_404_NOT_FOUND)
     
 
 @permission_classes([IsAuthenticated])
