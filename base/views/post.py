@@ -61,3 +61,27 @@ def get_adoption_post (request, id):
     post = AdoptionPostSerializer(post).data
     response = {"username":username, "pet":pet, "post":post}
     return Response(response, status= status.HTTP_200_OK)
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def adoption_filter (request):
+    filter_params = {
+        'type': request.data.get('type',None),
+        'breed': request.data.get('breed',None),
+        'gender': request.data.get('gender',None),
+    }
+    birth_date = request.data.get('birth_date',None)
+    if birth_date:
+        filter_params['birth_date__lte'] = birth_date
+
+    filter_params = {key: value for key, value in filter_params.items() if value is not None}
+    pets = Pet.objects.filter(**filter_params)
+    response = {}
+    for pet in pets:
+        post = AdoptionPost.objects.filter(pet_id = pet.id)
+        if post:
+            post = AdoptionPostSerializer(post[0]).data
+            username = pet.user.username
+            pet = PetSerializer(pet).data
+            response.update({"post": post, "username":username, "pet": pet})
+    return Response(response, status= 200)
