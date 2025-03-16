@@ -34,19 +34,23 @@ def delete_adoption_post (request , id):
     adoption_post = AdoptionPost.objects.filter(id = id)
     if not adoption_post:
         return Response({"message" : "no such id"} , status = status.HTTP_404_NOT_FOUND)
+    if adoption_post.user != request.user:
+        return Response({"message":"user does not have this post"}, status = status.HTTP_401_UNAUTHORIZED)
     adoption_post.delete()
     return Response({"message" : "post deleted successfully"})
 
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_adoption_posts (request):
-    pets = Pet.objects.all()
+    posts = AdoptionPost.objects.all()
     response = {}
-    for pet in pets:
-        post = AdoptionPostSerializer(AdoptionPost.objects.get(pet_id = pet.id)).data
-        username = pet.user.username
-        pet = PetSerializer(pet).data
-        response.update({"post": post, "username":username, "pet": pet})
+    for post in posts:
+        pet = PetSerializer(Pet.objects.get(id = post.pet_id)).data
+        username = post.user.username
+        holder = pet
+        holder.update({"username":username})
+        holder.update({"details":post.details})
+        response.update(holder)
     return Response(response, status= status.HTTP_200_OK)
 
 @permission_classes([IsAuthenticated])
@@ -58,8 +62,9 @@ def get_adoption_post (request, id):
     post = post[0]
     username = post.user.username
     pet = PetSerializer(Pet.objects.get(id = post.pet.id)).data
-    post = AdoptionPostSerializer(post).data
-    response = {"username":username, "pet":pet, "post":post}
+    response = pet
+    response.update({"username":username})
+    response.update({"datails":post.details})
     return Response(response, status= status.HTTP_200_OK)
 
 @permission_classes([IsAuthenticated])
@@ -80,8 +85,11 @@ def adoption_filter (request):
     for pet in pets:
         post = AdoptionPost.objects.filter(pet_id = pet.id)
         if post:
-            post = AdoptionPostSerializer(post[0]).data
+            post = post[0]
             username = pet.user.username
             pet = PetSerializer(pet).data
-            response.update({"post": post, "username":username, "pet": pet})
+            holder = pet
+            holder.update({"username":username})
+            holder.update({"details":post.details})
+            response.update(holder)
     return Response(response, status= 200)
