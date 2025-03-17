@@ -19,8 +19,10 @@ def add_adoption_post (request , id):
     details = request.data["details"]
     AdoptionPost.objects.create(pet = pet , user = user , details = details)
     serialized_pet = PetSerializer( pet, many=False).data
-    serialized_pet.update({"details":details})
-    return Response(serialized_pet , status=status.HTTP_201_CREATED)
+    post = serialized_pet
+    post.update({"photo":pet.photo.url if pet.photo else None})
+    post.update({"details":details})
+    return Response(post , status=status.HTTP_201_CREATED)
 
 #delete post should be made 
 #no need to make a view for updating 
@@ -43,14 +45,16 @@ def delete_adoption_post (request , id):
 @api_view(['GET'])
 def get_adoption_posts (request):
     posts = AdoptionPost.objects.all()
-    response = {}
+    response = []
     for post in posts:
-        pet = PetSerializer(Pet.objects.get(id = post.pet_id)).data
+        pet = Pet.objects.get(id = post.pet_id)
+        serialized_pet = PetSerializer(pet).data
         username = post.user.username
-        holder = pet
+        holder = serialized_pet
+        holder.update({"photo":pet.photo.url if pet.photo else None})
         holder.update({"username":username})
         holder.update({"details":post.details})
-        response.update(holder)
+        response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
 
 @permission_classes([IsAuthenticated])
@@ -61,8 +65,10 @@ def get_adoption_post (request, id):
         return Response({"message":"no such id"}, status= status.HTTP_404_NOT_FOUND)
     post = post[0]
     username = post.user.username
-    pet = PetSerializer(Pet.objects.get(id = post.pet.id)).data
-    response = pet
+    pet = Pet.objects.get(id = post.pet_id)
+    serialized_pet = PetSerializer(pet).data
+    response = serialized_pet
+    response.update({"photo":pet.photo.url if pet.photo else None})
     response.update({"username":username})
     response.update({"datails":post.details})
     return Response(response, status= status.HTTP_200_OK)
@@ -81,15 +87,16 @@ def adoption_filter (request):
 
     filter_params = {key: value for key, value in filter_params.items() if value is not None}
     pets = Pet.objects.filter(**filter_params)
-    response = {}
+    response = []
     for pet in pets:
         post = AdoptionPost.objects.filter(pet_id = pet.id)
         if post:
             post = post[0]
             username = pet.user.username
-            pet = PetSerializer(pet).data
-            holder = pet
+            serialized_pet = PetSerializer(pet).data
+            holder = serialized_pet
+            holder.update({"photo":pet.photo.url if pet.photo else None})
             holder.update({"username":username})
             holder.update({"details":post.details})
-            response.update(holder)
+            response.append(holder)
     return Response(response, status= 200)

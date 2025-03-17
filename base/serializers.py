@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Pet , CatVaccination , DogVaccination , AdoptionPost
+from .models import Pet , CatVaccination , DogVaccination , AdoptionPost , BreedingPost
 from django.contrib.auth.models import User
 
 class PetSerializer(serializers.ModelSerializer):
@@ -20,4 +20,9 @@ class DogVaccinationSerializer(serializers.ModelSerializer):
 class AdoptionPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdoptionPost
-        exclude = ('user','pet',)
+        exclude = ('user','pet','photo')
+
+class BreedingPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BreedingPost
+        exclude = ('user','pet','photo')
