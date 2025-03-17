@@ -30,4 +30,8 @@ urlpatterns = [
     path ('post/adoption/get', views.post.get_adoption_posts , name = 'get_adoption_posts'),
     path ('post/adoption/filter', views.post.adoption_filter , name = 'doption_filter'),
 
+    ###
+    path('product/add' , views.product.add_product, name = 'add_product'),
+    path('product/delete/<str:id>' , views.product.delete_product, name = 'delete_product')
+
 ]
