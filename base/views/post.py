@@ -1,3 +1,4 @@
+import datetime
 from rest_framework.response import Response
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -83,8 +84,13 @@ def adoption_filter (request):
     }
     birth_date = request.data.get('birth_date',None)
     if birth_date:
-        filter_params['birth_date__lte'] = birth_date
-
+        try:
+            birth_date_obj = datetime.datetime.strptime(birth_date, '%Y-%m-%d').date()
+            #print(birth_date_obj)
+            #print( Pet.objects.get(id=9).birth_date)
+            filter_params['birth_date__lte'] = birth_date_obj
+        except ValueError:
+            return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
     filter_params = {key: value for key, value in filter_params.items() if value is not None}
     pets = Pet.objects.filter(**filter_params)
     response = []

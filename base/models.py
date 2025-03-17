@@ -15,7 +15,7 @@ class Pet (models.Model):
         max_length=6,
         choices=gender_choices
     )
-    birth_date = models.TextField(max_length = 15)
+    birth_date = models.DateField(null= True)
     breed = models.TextField(max_length=30 , default='unknown')
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
     type = models.CharField(
