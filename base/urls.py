@@ -17,6 +17,7 @@ urlpatterns = [
     path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
     path ('pet/get/<str:id>' , views.pet.get_pet, name = 'get_pet'),
     path ('pet/delete/<str:id>' , views.pet.delete_pet, name = 'delete_pet'),
+    path ('pet/update_photo/<str:id>' , views.pet.update_pet_photo, name = 'update_pet_photo'),
 
     #####
     path('vaccination/dog/update/<str:id>' , views.vaccination.update_dog_vaccination, name = 'update_dog_vaccination'),

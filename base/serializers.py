@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class PetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pet
-        exclude = ('user',)
+        exclude = ('user','photo')
 
 class CatVaccinationSerializer(serializers.ModelSerializer):
     class Meta:
