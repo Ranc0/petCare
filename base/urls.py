@@ -10,6 +10,9 @@ urlpatterns = [
     #####
     path('',views.index , name='index'),
     #####
+    path('homepage', views.homepage , name = 'homepage'),
+    
+    #####
     path('account/sign_in' ,views.account.sign_in , name = 'sign_in' ),
     path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
     #####
