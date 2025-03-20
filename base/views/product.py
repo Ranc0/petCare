@@ -34,3 +34,49 @@ def delete_product (request, id):
         return Response({"message":"user does not have this product"}, status= status.HTTP_401_UNAUTHORIZED)
     product.delete()
     return Response({"message":"product deleted successfully"}, status= status.HTTP_200_OK)
+
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_products (request):
+    products = Product.objects.all()
+    response = []
+    for product in products:
+        photo = product.photo if product.photo else None
+        username = product.user.username
+        product = ProductSerializer(product).data
+        product.update({"photo":photo})
+        product.update({"username":username})
+        response.append(product)
+    return Response(response, status= status.HTTP_200_OK)
+
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_product (request, id):
+    product = get_object_or_404(Product, id=id)
+    photo = product.photo if product.photo else None
+    username = product.user.username
+    product = ProductSerializer(product).data
+    product.update({"photo":photo})
+    product.update({"username":username})
+    return Response(product, status= status.HTTP_200_OK)
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def product_filter (request):
+    filter_params = {
+        'category': request.data.get('category',None),
+    }
+    price = request.data.get('price',None)
+    if price:
+        filter_params['price__lte'] = price
+    filter_params = {key: value for key, value in filter_params.items() if value is not None}
+    products = Product.objects.filter(**filter_params).order_by('price')
+    response = []
+    for product in products:
+        photo = product.photo if product.photo else None
+        username = product.user.username
+        product = ProductSerializer(product).data
+        product.update({"photo":photo})
+        product.update({"username":username})
+        response.append(product)
+    return Response(response, status= status.HTTP_200_OK)
