@@ -22,7 +22,9 @@ def add_product (request):
         obj = obj.data
         obj.update({ "user" : user })
         Product.objects.create(**obj)
-        return Response({"message":"product added successfully"} , status=status.HTTP_201_CREATED)
+        response = Product.objects.last()
+        response = ProductSerializer(response).data
+        return Response(response , status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
     
