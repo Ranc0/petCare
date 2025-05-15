@@ -1,9 +1,5 @@
 from rest_framework import serializers
-<<<<<<< Updated upstream
-from .models import Pet , CatVaccination , DogVaccination
-=======
 from .models import Pet , CatVaccination , DogVaccination , AdoptionPost , BreedingPost , Product, Store, Doctor
->>>>>>> Stashed changes
 from django.contrib.auth.models import User
 
 class PetSerializer(serializers.ModelSerializer):
@@ -20,8 +16,6 @@ class DogVaccinationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DogVaccination
         exclude = ('pet',)
-<<<<<<< Updated upstream
-=======
 
 class AdoptionPostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,4 +41,3 @@ class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         excluse = ('user','certificate_image')
->>>>>>> Stashed changes
