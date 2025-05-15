@@ -69,8 +69,6 @@ class Product(models.Model):
     )
     details = models.TextField(max_length=100)
     shipping = models.BooleanField()
-<<<<<<< Updated upstream
-=======
     user = models.ForeignKey(User , on_delete=models.CASCADE)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
@@ -94,4 +92,3 @@ class Doctor(models.Model):
     def delete(self, *args, **kwargs):
         self.user = None
         super().delete(*args, **kwargs)
->>>>>>> Stashed changes
