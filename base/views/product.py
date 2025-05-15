@@ -3,21 +3,15 @@ from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..models import Pet  , Product, Store
 from django.contrib.auth.models import User
-<<<<<<< Updated upstream
-from ..serializers import PetSerializer
-=======
 from ..serializers import ProductSerializer, StoreSerializer
->>>>>>> Stashed changes
 from rest_framework import status
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 #views to add :
 #add product
 #update product
 #delete product
-<<<<<<< Updated upstream
-#getters (filters must be applied)
-=======
 #getters (filters must be applied)
 
 @permission_classes([IsAuthenticated])
@@ -107,4 +101,3 @@ def product_search(request):
         product.update({"photo":photo})
         response.append(product)
     return Response(response, status= status.HTTP_200_OK)
->>>>>>> Stashed changes

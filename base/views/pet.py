@@ -5,11 +5,8 @@ from ..serializers import PetSerializer, CatVaccinationSerializer, DogVaccinatio
 from ..models import Pet , CatVaccination , DogVaccination
 from rest_framework import status
 from PIL import Image
-<<<<<<< Updated upstream
-=======
 import os
 from django.contrib.auth.models import User
->>>>>>> Stashed changes
 
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
@@ -49,8 +46,6 @@ def get_pet (request , id ):
     #you do it 
     pass
     
-<<<<<<< Updated upstream
-=======
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_user_pets (request):
@@ -140,4 +135,3 @@ def update_vaccinations(request, id):
     else:
         return Response(obj.errors, status=status.HTTP_400_BAD_REQUEST)
     
->>>>>>> Stashed changes
