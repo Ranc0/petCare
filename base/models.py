@@ -15,7 +15,7 @@ class Pet (models.Model):
         max_length=6,
         choices=gender_choices
     )
-    birth_date = models.TextField(max_length = 15)
+    birth_date = models.DateField(null= True)    
     breed = models.TextField(max_length=30 , default='unknown')
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
     type = models.CharField(
@@ -48,11 +48,13 @@ class AdoptionPost(models.Model):
     details = models.TextField(max_length=100 , null = True , blank = True)
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
     user = models.ForeignKey(User , on_delete=models.CASCADE)
+    photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 class BreedingPost(models.Model):
     details = models.TextField(max_length=100 , null = True , blank = True)
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
     user = models.ForeignKey(User , on_delete=models.CASCADE)
+    photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 
 class Product(models.Model):
