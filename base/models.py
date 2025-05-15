@@ -15,7 +15,7 @@ class Pet (models.Model):
         max_length=6,
         choices=gender_choices
     )
-    birth_date = models.DateField(null= True)
+    birth_date = models.TextField(max_length = 15)
     breed = models.TextField(max_length=30 , default='unknown')
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
     type = models.CharField(
@@ -48,13 +48,11 @@ class AdoptionPost(models.Model):
     details = models.TextField(max_length=100 , null = True , blank = True)
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
     user = models.ForeignKey(User , on_delete=models.CASCADE)
-    photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 class BreedingPost(models.Model):
     details = models.TextField(max_length=100 , null = True , blank = True)
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
     user = models.ForeignKey(User , on_delete=models.CASCADE)
-    photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 
 class Product(models.Model):
@@ -71,7 +69,29 @@ class Product(models.Model):
     )
     details = models.TextField(max_length=100)
     shipping = models.BooleanField()
+<<<<<<< Updated upstream
+=======
     user = models.ForeignKey(User , on_delete=models.CASCADE)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 
+class Store(models.Model):
+    store_name = models.CharField(max_length=30)
+    location = models.CharField(null = True,max_length=500)
+    logo = models.ImageField(null=True, blank=True, upload_to='images/')
+    user = models.OneToOneField(User, on_delete= models.CASCADE)
+
+    def delete(self, *args, **kwargs):
+        # Delete the Doctor instance without deleting the associated User
+        self.user = None
+        super().delete(*args, **kwargs)
+
+class Doctor(models.Model):
+    certificate_image = models.ImageField(null = True, blank  =True, upload_to = 'images/')
+    experience = models.IntegerField(default=0)
+    user = models.OneToOneField(User, on_delete= models.CASCADE)
+
+    def delete(self, *args, **kwargs):
+        self.user = None
+        super().delete(*args, **kwargs)
+>>>>>>> Stashed changes

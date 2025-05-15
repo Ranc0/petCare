@@ -1,16 +1,23 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
-from ..models import Pet  , Product
+from ..models import Pet  , Product, Store
 from django.contrib.auth.models import User
-from ..serializers import ProductSerializer
+<<<<<<< Updated upstream
+from ..serializers import PetSerializer
+=======
+from ..serializers import ProductSerializer, StoreSerializer
+>>>>>>> Stashed changes
 from rest_framework import status
+from django.db.models import Q
 
 #views to add :
 #add product
 #update product
 #delete product
+<<<<<<< Updated upstream
+#getters (filters must be applied)
+=======
 #getters (filters must be applied)
 
 @permission_classes([IsAuthenticated])
@@ -22,8 +29,10 @@ def add_product (request):
         obj = obj.data
         obj.update({ "user" : user })
         Product.objects.create(**obj)
-        response = Product.objects.last()
-        response = ProductSerializer(response).data
+        product = Product.objects.last()
+        photo = product.photo if product.photo else None
+        response = ProductSerializer(product).data
+        response.update({'photo':photo})
         return Response(response , status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
@@ -44,10 +53,8 @@ def get_products (request):
     response = []
     for product in products:
         photo = product.photo if product.photo else None
-        username = product.user.username
         product = ProductSerializer(product).data
         product.update({"photo":photo})
-        product.update({"username":username})
         response.append(product)
     return Response(response, status= status.HTTP_200_OK)
 
@@ -56,10 +63,13 @@ def get_products (request):
 def get_product (request, id):
     product = get_object_or_404(Product, id=id)
     photo = product.photo if product.photo else None
-    username = product.user.username
+    store = Store.objects.get(user=product.user)
+    logo = store.logo if store.logo else None
+    store = StoreSerializer(store).data
     product = ProductSerializer(product).data
     product.update({"photo":photo})
-    product.update({"username":username})
+    product.update(store)
+    product.update({"logo":logo})
     return Response(product, status= status.HTTP_200_OK)
 
 @permission_classes([IsAuthenticated])
@@ -79,6 +89,22 @@ def product_filter (request):
         username = product.user.username
         product = ProductSerializer(product).data
         product.update({"photo":photo})
-        product.update({"username":username})
         response.append(product)
     return Response(response, status= status.HTTP_200_OK)
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def product_search(request):
+    text = request.data.get('text',None)
+    if text is not None:
+        products = Product.objects.filter(Q(name__icontains= text)|Q(details__icontains= text)|Q(category__icontains = text))
+    else:
+        products = Product.objects.all()
+    response = []
+    for product in products:
+        photo = product.photo if product.photo else None
+        product = ProductSerializer(product).data
+        product.update({"photo":photo})
+        response.append(product)
+    return Response(response, status= status.HTTP_200_OK)
+>>>>>>> Stashed changes
