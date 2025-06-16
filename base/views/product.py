@@ -27,6 +27,11 @@ def add_product (request):
         photo = product.photo if product.photo else None
         response = ProductSerializer(product).data
         response.update({'photo':photo})
+        store = Store.objects.get(user=product.user)
+        logo = store.logo if store.logo else None
+        response.update({"store_name":store.store_name})
+        response.update({"location":store.location})
+        response.update({"logo":logo})
         return Response(response , status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
@@ -59,12 +64,12 @@ def get_product (request, id):
     photo = product.photo if product.photo else None
     store = Store.objects.get(user=product.user)
     logo = store.logo if store.logo else None
-    store = StoreSerializer(store).data
-    product = ProductSerializer(product).data
-    product.update({"photo":photo})
-    product.update(store)
-    product.update({"logo":logo})
-    return Response(product, status= status.HTTP_200_OK)
+    response = ProductSerializer(product).data
+    response.update({"photo":photo})
+    response.update({"store_name":store.store_name})
+    response.update({"location":store.location})
+    response.update({"logo":logo})
+    return Response(response, status= status.HTTP_200_OK)
 
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])

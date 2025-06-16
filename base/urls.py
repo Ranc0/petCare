@@ -42,7 +42,7 @@ urlpatterns = [
 
     #####
     path('store/create', views.create_store, name= 'create_store'),
-    path('store/delete', views.delete_store, name = 'delete_store'),
+    path('store/delete/<str:id>', views.delete_store, name = 'delete_store'),
     path('store/get/<str:id>', views.get_store, name = 'get_store'),
 
 ]
