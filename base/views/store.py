@@ -6,6 +6,8 @@ from ..models import Store, Product
 from django.contrib.auth.models import User
 from ..serializers import StoreSerializer, ProductSerializer
 from rest_framework import status
+from PIL import Image
+import os
 
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
@@ -58,3 +60,33 @@ def get_store(request, id):
     response.update({'logo':logo})
     response.update({'products':holder})
     return Response(response, status= status.HTTP_200_OK)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['PUT'])
+def update_store_photo(request, id):
+    store = get_object_or_404(Store, id = id)
+    photo = request.FILES.get('photo')
+    if not photo:
+        return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Validate the uploaded file as an image
+        image = Image.open(photo)
+        image.verify()  # Verify the image integrity
+
+        # Delete the old photo if it exists
+        if store.photo and os.path.isfile(store.photo.path):
+            os.remove(store.photo.path)
+
+        # Update the photo field
+        store.photo = photo
+        store.save()
+
+        # Serialize the updated pet object
+        response = StoreSerializer(store).data
+        response.update({"photo": store.photo.url if store.photo else None})
+        return Response(response, status=status.HTTP_200_OK)
+
+    except (IOError, SyntaxError):
+        return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
