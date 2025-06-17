@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -37,14 +38,18 @@ def update_pet (request , id ):
 @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_pet (request , id ):
-    #you do it , make sure the pet the user owns the pet he's deleting
-    pass
+    pet = get_object_or_404(Pet, id = id)
+    if request.user != pet.user:
+        return Response({"message":"user does not have this pet"}, status= status.HTTP_401_UNAUTHORIZED)
+    pet.delete()
+    return Response({"message":"pet deleted successfully"}, status= status.HTTP_200_OK)
 
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_pet (request , id ):
-    #you do it 
-    pass
+    pet = get_object_or_404(Pet, id = id)
+    response = PetSerializer(pet).data
+    return Response(response, status= status.HTTP_200_OK)
     
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
