@@ -159,3 +159,10 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'alrashidlina77@gmail.com'
+EMAIL_HOST_PASSWORD = 'irry tljn opcd lgxi'
+DEFAULT_FROM_EMAIL = 'OTPreplier@gmail.com'
+SEND_OTP_EMAIL = True

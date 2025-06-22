@@ -11,6 +11,8 @@ urlpatterns = [
     path('',views.index , name='index'),
     #####
     path('account/sign_in' ,views.account.sign_in , name = 'sign_in' ),
+    path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
+    path('account/verify_otp', views.account.verify_otp, name = 'verify_otp'),
     #####
     path ('pet/add' , views.pet.add_pet, name = 'add_pet'),
     path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
