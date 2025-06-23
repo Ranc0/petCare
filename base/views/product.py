@@ -47,15 +47,16 @@ def delete_product (request, id):
 
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
-def get_products (request):
+def get_products(request):
     products = Product.objects.all()
     response = []
+
     for product in products:
-        photo = product.photo if product.photo else None
-        product = ProductSerializer(product).data
-        product.update({"photo":photo})
-        response.append(product)
-    return Response(response, status= status.HTTP_200_OK)
+        serialized = ProductSerializer(product).data
+        serialized["photo"] = product.photo.url if product.photo else None
+        response.append(serialized)
+
+    return Response(response, status=status.HTTP_200_OK)
 
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])

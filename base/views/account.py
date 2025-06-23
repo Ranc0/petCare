@@ -56,8 +56,8 @@ def generate_and_send_otp(user):
     otp = str(random.randint(100000, 999999))
     cache_key = f'otp_{user.id}'
     cache.set(cache_key, otp, timeout=5000000)
-    
-    if settings.SEND_OTP_EMAIL:  # Set this in settings.py
+
+    if settings.SEND_OTP_EMAIL:
         send_mail(
             'Your OTP Code',
             f'Your verification code is: {otp}',
@@ -70,13 +70,13 @@ def generate_and_send_otp(user):
 def handle_otp_verification(user_id, submitted_otp):
     cache_key = f'otp_{user_id}'
     cached_otp = cache.get(cache_key)
-    
+
     if not cached_otp:
         return False, "OTP expired or doesn't exist"
-    
+
     if cached_otp != submitted_otp:
         return False, "Invalid OTP"
-    
+
     cache.delete(cache_key)
     return True, "OTP verified successfully"
 
@@ -84,19 +84,24 @@ def handle_otp_verification(user_id, submitted_otp):
 def verify_otp(request):
     user_id = request.data.get('user_id')
     otp = request.data.get('otp')
-    
+
     if not user_id or not otp:
-        return Response({"error": "user_id and otp are required"}, 
-                      status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({"error": "user_id and otp are required"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
     is_valid, message = handle_otp_verification(user_id, otp)
     if not is_valid:
         return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
-    
-    user = User.objects.get(id = user_id)
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
     user.is_active = True
     user.save()
-    refresh = RefreshToken.for_user(request.user)
+
+    refresh = RefreshToken.for_user(user)
     return Response({
         'refresh': str(refresh),
         'access': str(refresh.access_token),
@@ -106,19 +111,19 @@ def verify_otp(request):
 def sign_in(request):
     username = request.data.get('username')
     password = request.data.get('password')
-    
+
     user = authenticate(username=username, password=password)
     if not user:
         return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-    
+
     user.is_active = True
     user.save()
-    refresh = RefreshToken.for_user(request.user)
+
+    refresh = RefreshToken.for_user(user)
     return Response({
         'refresh': str(refresh),
         'access': str(refresh.access_token),
-    })   
-
+    })
 
 @api_view(['POST'])
 def sign_up(request):
@@ -126,20 +131,19 @@ def sign_up(request):
     email = request.data.get('email')
     password = request.data.get('password')
     confirm_password = request.data.get('confirm_password')
-    
+
     if User.objects.filter(username=username).exists():
         return Response({"message": "Username exists"}, status=status.HTTP_409_CONFLICT)
     if password != confirm_password:
         return Response({"message": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Create inactive user
-    user = User.objects.create(username = username, email = email, is_active = False)
+
+    user = User.objects.create(username=username, email=email, is_active=False)
     user.set_password(password)
     user.save()
-    
+
     otp_sent = generate_and_send_otp(user)
     return Response({
         "message": "OTP sent to your email",
         "otp": otp_sent,
         "user_id": user.id
-    })      
+    })
