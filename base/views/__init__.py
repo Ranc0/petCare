@@ -6,3 +6,4 @@ from .post import *
 from .product import *
 from .homepage import *
 from .store import *
+from .homepage import *

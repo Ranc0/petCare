@@ -17,9 +17,9 @@ def add_pet (request):
     if (obj.is_valid()):
         obj = obj.data
         obj.update({ "user" : user }) 
-        photo = request.FILES.get('photo')
-        obj.pop('photo')
-        pet = Pet.objects.create(**obj , photo = photo)
+        #photo = request.FILES.get('photo')
+        #obj.pop('photo')
+        pet = Pet.objects.create(**obj , photo = None)
         if pet.type == 'cat':
             vaccination = CatVaccination.objects.create(pet = pet)
         else :

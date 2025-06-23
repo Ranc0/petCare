@@ -14,6 +14,8 @@ urlpatterns = [
     path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
     path('account/verify_otp', views.account.verify_otp, name = 'verify_otp'),
     #####
+    path('homepage', views.homepage.get_homepage, name = 'homepage' ),
+    #####
     path ('pet/add' , views.pet.add_pet, name = 'add_pet'),
     path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
     path ('pet/get/<str:id>' , views.pet.get_pet, name = 'get_pet'),
