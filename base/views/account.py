@@ -111,12 +111,13 @@ def sign_in(request):
     if not user:
         return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     
-    otp_sent = generate_and_send_otp(user)
+    user.is_active = True
+    user.save()
+    refresh = RefreshToken.for_user(request.user)
     return Response({
-        "message": "OTP sent to your email",
-        "otp": otp_sent,  # Remove in production
-        "user_id": user.id
-    })        
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    })   
 
 
 @api_view(['POST'])
