@@ -85,7 +85,7 @@ def update_store_photo(request, id):
 
         # Serialize the updated pet object
         response = StoreSerializer(store).data
-        response.update({"photo": store.logo.url if store.logo else None})
+        response.update({"logo": store.logo.url if store.logo else None})
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):
