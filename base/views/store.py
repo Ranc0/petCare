@@ -22,7 +22,7 @@ def create_store (request):
         Store.objects.create(**obj)
         store = Store.objects.last()
         response = StoreSerializer(store).data
-        logo = store.logo if store.logo else None
+        logo = store.logo.url if store.logo else None
         response.update({'logo':logo})
         response.update({'products':[]})
         return Response(response , status=status.HTTP_201_CREATED)
@@ -34,7 +34,7 @@ def create_store (request):
 def delete_store(request,id):
     user = request.user
     store = get_object_or_404(Store, id = id)
-    if request.user != store.user:
+    if user != store.user:
         return Response({"message":"user does not have this store"}, status= status.HTTP_401_UNAUTHORIZED)
     products = Product.objects.filter(user = user)
     for product in products:
@@ -42,17 +42,17 @@ def delete_store(request,id):
     store.delete()
     return Response({"message":"store deleted successfully"}, status= status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_store(request, id):
-    user = request.user
     store = get_object_or_404(Store, id = id)
-    logo = store.logo if store.logo else None
+    logo = store.logo.url if store.logo else None
+    user = store.user
     products = Product.objects.filter(user = user)
 
     holder = []
     for product in products:
-        photo = product.photo if product.photo else None
+        photo = product.photo.url if product.photo else None
         product = ProductSerializer(product).data
         product.update({"photo":photo})
         holder.append(product)
@@ -66,7 +66,7 @@ def get_store(request, id):
 @api_view(['PUT'])
 def update_store_photo(request, id):
     store = get_object_or_404(Store, id = id)
-    photo = request.FILES.get('photo')
+    photo = request.FILES.get('logo')
     if not photo:
         return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -76,16 +76,16 @@ def update_store_photo(request, id):
         image.verify()  # Verify the image integrity
 
         # Delete the old photo if it exists
-        if store.photo and os.path.isfile(store.photo.path):
-            os.remove(store.photo.path)
+        if store.logo and os.path.isfile(store.logo.path):
+            os.remove(store.logo.path)
 
         # Update the photo field
-        store.photo = photo
+        store.logo = photo
         store.save()
 
         # Serialize the updated pet object
         response = StoreSerializer(store).data
-        response.update({"photo": store.photo.url if store.photo else None})
+        response.update({"photo": store.logo.url if store.logo else None})
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):
