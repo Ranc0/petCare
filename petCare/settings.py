@@ -169,8 +169,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'pertcareproject@gmail.com'
-EMAIL_HOST_PASSWORD = 'sgur nfnn vnjq qepk'
+EMAIL_HOST_USER = 'petcarels516@gmail.com'
+EMAIL_HOST_PASSWORD = 'mwug ysha aicu vjkx'
 DEFAULT_FROM_EMAIL = 'OTPreplier@gmail.com'
 SEND_OTP_EMAIL = True
 
