@@ -71,7 +71,7 @@ class Product(models.Model):
     )
     details = models.TextField(max_length=100)
     shipping = models.BooleanField()
-    user = models.ForeignKey(User , on_delete=models.CASCADE)
+    user = models.ForeignKey(User , on_delete=models.CASCADE,null=True, blank=True)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 
@@ -94,3 +94,13 @@ class Doctor(models.Model):
     def delete(self, *args, **kwargs):
         self.user = None
         super().delete(*args, **kwargs)
+
+class DoctorPost(models.Model):
+    post_title = models.CharField(null = True, max_length=200)
+    post = models.CharField(null = True, max_length=1000)
+    date = models.DateField(null = True, auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class UserPhoto(models.Model):
+    user_photo = models.ImageField(null = True, blank  =True, upload_to = 'images/')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

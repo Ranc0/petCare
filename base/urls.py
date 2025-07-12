@@ -13,6 +13,8 @@ urlpatterns = [
     path('account/sign_in' ,views.account.sign_in , name = 'sign_in' ),
     path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
     path('account/verify_otp', views.account.verify_otp, name = 'verify_otp'),
+    path('account/get_account/<str:id>', views.account.get_account, name = 'get_account'),
+    path('account/update_user_photo/<str:id>', views.account.update_user_photo, name = 'update_user_photo'),
     #####
     path('homepage', views.homepage.get_homepage, name = 'homepage' ),
     #####
@@ -51,5 +53,11 @@ urlpatterns = [
     path('store/delete/<str:id>', views.delete_store, name = 'delete_store'),
     path('store/get/<str:id>', views.get_store, name = 'get_store'),
     path('store/update/<str:id>', views.update_store_photo, name = 'update_store_photo'),
+
+    ######
+    path('doctor/join', views.doctor.join_as_doctor, name = 'join_as_doctor'),
+    path('doctor/update_certificate_image/<str:id>', views.doctor.update_certificate_photo, name = 'update_certificate_photo'),
+    path('doctor/add_post', views.doctor.add_post, name = 'add_post'),
+    path('doctor/get_posts', views.doctor.get_posts, name = 'get_posts'),
 
 ]

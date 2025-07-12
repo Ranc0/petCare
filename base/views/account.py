@@ -51,6 +51,14 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from rest_framework.decorators import api_view ,permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from ..models import Doctor, DoctorPost, UserPhoto
+from ..serializers import DoctorPostSerializer
+from PIL import Image
+import os
+
 
 def generate_and_send_otp(user):
     otp = str(random.randint(100000, 999999))
@@ -131,15 +139,18 @@ def sign_up(request):
     email = request.data.get('email')
     password = request.data.get('password')
     confirm_password = request.data.get('confirm_password')
+    first_name = request.data.get('first_name')
+    last_name = request.data.get('last_name')
 
     if User.objects.filter(username=username).exists():
         return Response({"message": "Username exists"}, status=status.HTTP_409_CONFLICT)
     if password != confirm_password:
         return Response({"message": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = User.objects.create(username=username, email=email, is_active=False)
+    user = User.objects.create(username=username, email=email, first_name = first_name, last_name = last_name, is_active=False)
     user.set_password(password)
     user.save()
+    user_photo = UserPhoto.objects.create(user_photo = None, user = user)
 
     otp_sent = generate_and_send_otp(user)
     return Response({
@@ -147,3 +158,55 @@ def sign_up(request):
         "otp": otp_sent,
         "user_id": user.id
     })
+
+@api_view(['GET'])
+def get_account(request, id):
+    user = get_object_or_404(User, id = id)
+    response = {"username":user.username, "email":user.email, "first_name":"Dr."+user.first_name, "last_name":user.last_name}
+    photo = UserPhoto(user = user)
+    response.update({"user_photo":photo.user_photo.url if photo.user_photo else None})
+    
+    if Doctor.objects.filter(user = user):
+        doctor = Doctor.objects.get(user = user)
+        response.update({"experience":doctor.experience})
+        holder = []
+        posts = DoctorPost.objects.filter(user = user)
+        for post in posts:
+            post = DoctorPostSerializer(post).data
+            holder.append(post)
+        response.update({"posts":holder})
+    return Response(response, status= status.HTTP_200_OK)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['PUT'])
+def update_user_photo(request, id):
+    user = User.objects.filter(id = id)
+    if user:
+        user = user[0]
+    else:
+        return Response({"message":"user not found"}, status= status.HTTP_404_NOT_FOUND)
+    photo = request.FILES.get('user_photo')
+    if not photo:
+        return Response({"message": "user photo is required"}, status=status.HTTP_400_BAD_REQUEST)
+    user_photo = UserPhoto.objects.get(user = user)
+
+    try:
+        # Validate the uploaded file as an image
+        image = Image.open(photo)
+        image.verify()  # Verify the image integrity
+
+        # Delete the old photo if it exists
+        if user_photo.user_photo and os.path.isfile(user_photo.user_photo.path):
+            os.remove(user_photo.user_photo.path)
+
+        # Update the photo field
+        user_photo.user_photo = photo
+        user_photo.save()
+
+        # Serialize the updated pet object
+        response= {"user_photo":user_photo.user_photo.url if user_photo.user_photo else None}
+        return Response(response, status=status.HTTP_200_OK)
+
+    except (IOError, SyntaxError):
+        return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
