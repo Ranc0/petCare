@@ -82,7 +82,7 @@ class Product(models.Model):
 
 class Store(models.Model):
     store_name = models.CharField(max_length=30)
-    location = models.CharField(null = True,max_length=500)
+    #location = models.CharField(null = True,max_length=500)
     logo = models.ImageField(null=True, blank=True, upload_to='images/')
     user = models.OneToOneField(CustomUser, on_delete= models.CASCADE)
 
