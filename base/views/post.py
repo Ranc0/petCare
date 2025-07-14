@@ -6,7 +6,7 @@ from ..models import Pet  , AdoptionPost , BreedingPost
 from django.contrib.auth.models import User
 from ..serializers import PetSerializer, AdoptionPostSerializer
 from rest_framework import status
-
+from django.db.models import Q
 
 
 @permission_classes([IsAuthenticated])
@@ -18,12 +18,13 @@ def add_adoption_post (request , id):
         return Response({"message":"no such id"}, status=status.HTTP_404_NOT_FOUND)
     pet = pet[0]
     details = request.data["details"]
-    AdoptionPost.objects.create(pet = pet , user = user , details = details)
+    post = AdoptionPost.objects.create(pet = pet , user = user , details = details)
     serialized_pet = PetSerializer( pet, many=False).data
-    post = serialized_pet
-    post.update({"photo":pet.photo.url if pet.photo else None})
-    post.update({"details":details})
-    return Response(post , status=status.HTTP_201_CREATED)
+    response = serialized_pet
+    response.update({"photo":pet.photo.url if pet.photo else None})
+    response.update({"details":details})
+    response.update({"id":post.id})
+    return Response(response , status=status.HTTP_201_CREATED)
 
 #delete post should be made 
 #no need to make a view for updating 
@@ -37,12 +38,13 @@ def delete_adoption_post (request , id):
     adoption_post = AdoptionPost.objects.filter(id = id)
     if not adoption_post:
         return Response({"message" : "no such id"} , status = status.HTTP_404_NOT_FOUND)
+    adoption_post = adoption_post[0]
     if adoption_post.user != request.user:
         return Response({"message":"user does not have this post"}, status = status.HTTP_401_UNAUTHORIZED)
     adoption_post.delete()
     return Response({"message" : "post deleted successfully"})
 
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_adoption_posts (request):
     posts = AdoptionPost.objects.all()
@@ -55,10 +57,11 @@ def get_adoption_posts (request):
         holder.update({"photo":pet.photo.url if pet.photo else None})
         holder.update({"username":username})
         holder.update({"details":post.details})
+        holder.update({"id":post.id})
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_adoption_post (request, id):
     post = AdoptionPost.objects.filter(id = id)
@@ -72,9 +75,10 @@ def get_adoption_post (request, id):
     response.update({"photo":pet.photo.url if pet.photo else None})
     response.update({"username":username})
     response.update({"datails":post.details})
+    response.update({"id":post.id})
     return Response(response, status= status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def adoption_filter (request):
     filter_params = {
@@ -106,3 +110,26 @@ def adoption_filter (request):
             holder.update({"details":post.details})
             response.append(holder)
     return Response(response, status= 200)
+
+@api_view(['POST'])
+def adoption_post_search(request):
+    text = request.data.get('text',None)
+    if text is not None:
+        pets = Pet.objects.filter(Q(type__icontains= text)|Q(breed__icontains= text)|Q(gender__icontains= text)|Q(name__icontains= text))
+    else:
+        pets= Pet.objects.all()
+    response = []
+    for pet in pets:
+        username = pet.user.username
+        post = AdoptionPost.objects.filter(pet = pet)
+        if not post:
+            continue
+        post = post[0]
+        serialized_pet = PetSerializer(pet).data
+        holder = serialized_pet
+        holder.update({"photo":pet.photo.url if pet.photo else None})
+        holder.update({"username":username})
+        holder.update({"details":post.details})
+        holder.update({"id":post.id})
+        response.append(holder)
+    return Response(response, status= status.HTTP_200_OK)

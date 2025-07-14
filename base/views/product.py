@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from ..serializers import ProductSerializer, StoreSerializer
 from rest_framework import status
 from django.db.models import Q
+from PIL import Image
+import os
 from django.shortcuts import get_object_or_404
 
 #views to add :
@@ -18,15 +20,21 @@ from django.shortcuts import get_object_or_404
 @api_view(['POST'])
 def add_product (request):
     user = request.user
+    store = get_object_or_404(Store, user = user)
     obj = ProductSerializer(data = request.data, many = False)
     if obj.is_valid():
         obj = obj.data
         obj.update({ "user" : user })
         Product.objects.create(**obj)
         product = Product.objects.last()
-        photo = product.photo if product.photo else None
+        photo = product.photo.url if product.photo else None
         response = ProductSerializer(product).data
         response.update({'photo':photo})
+        #store = Store.objects.get(user=product.user)
+        logo = store.logo.url if store.logo else None
+        response.update({"store_name":store.store_name})
+        response.update({"location":store.location})
+        response.update({"logo":logo})
         return Response(response , status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
@@ -40,33 +48,34 @@ def delete_product (request, id):
     product.delete()
     return Response({"message":"product deleted successfully"}, status= status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @api_view(['GET'])
-def get_products (request):
+def get_products(request):
     products = Product.objects.all()
     response = []
-    for product in products:
-        photo = product.photo if product.photo else None
-        product = ProductSerializer(product).data
-        product.update({"photo":photo})
-        response.append(product)
-    return Response(response, status= status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
+    for product in products:
+        serialized = ProductSerializer(product).data
+        serialized["photo"] = product.photo.url if product.photo else None
+        response.append(serialized)
+
+    return Response(response, status=status.HTTP_200_OK)
+
+#@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_product (request, id):
     product = get_object_or_404(Product, id=id)
-    photo = product.photo if product.photo else None
+    photo = product.photo.url if product.photo else None
     store = Store.objects.get(user=product.user)
-    logo = store.logo if store.logo else None
-    store = StoreSerializer(store).data
-    product = ProductSerializer(product).data
-    product.update({"photo":photo})
-    product.update(store)
-    product.update({"logo":logo})
-    return Response(product, status= status.HTTP_200_OK)
+    logo = store.logo.url if store.logo else None
+    response = ProductSerializer(product).data
+    response.update({"photo":photo})
+    response.update({"store_name":store.store_name})
+    response.update({"location":store.location})
+    response.update({"logo":logo})
+    return Response(response, status= status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def product_filter (request):
     filter_params = {
@@ -79,14 +88,13 @@ def product_filter (request):
     products = Product.objects.filter(**filter_params).order_by('price')
     response = []
     for product in products:
-        photo = product.photo if product.photo else None
-        username = product.user.username
+        photo = product.photo.url if product.photo else None
         product = ProductSerializer(product).data
         product.update({"photo":photo})
         response.append(product)
     return Response(response, status= status.HTTP_200_OK)
 
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def product_search(request):
     text = request.data.get('text',None)
@@ -96,8 +104,41 @@ def product_search(request):
         products = Product.objects.all()
     response = []
     for product in products:
-        photo = product.photo if product.photo else None
+        photo = product.photo.url if product.photo else None
         product = ProductSerializer(product).data
         product.update({"photo":photo})
         response.append(product)
     return Response(response, status= status.HTTP_200_OK)
+
+@permission_classes([IsAuthenticated])
+@api_view(['PUT'])
+def update_product_photo(request, id):
+    product = Product.objects.filter(id = id)
+    if product:
+        product = product[0]
+    else:
+        return Response({"message":"pet not found"}, status= status.HTTP_404_NOT_FOUND)
+    photo = request.FILES.get('photo')
+    if not photo:
+        return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Validate the uploaded file as an image
+        image = Image.open(photo)
+        image.verify()  # Verify the image integrity
+
+        # Delete the old photo if it exists
+        if product.photo and os.path.isfile(product.photo.path):
+            os.remove(product.photo.path)
+
+        # Update the photo field
+        product.photo = photo
+        product.save()
+
+        # Serialize the updated pet object
+        response = ProductSerializer(product).data
+        response.update({"photo": product.photo.url if product.photo else None})
+        return Response(response, status=status.HTTP_200_OK)
+
+    except (IOError, SyntaxError):
+        return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)

@@ -28,9 +28,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'base',
     'rest_framework',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -158,4 +162,12 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+CORS_ALLOW_ALL_ORIGINS = True
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'alrashidlina77@gmail.com'
+EMAIL_HOST_PASSWORD = 'irry tljn opcd lgxi'
+DEFAULT_FROM_EMAIL = 'OTPreplier@gmail.com'
+SEND_OTP_EMAIL = True

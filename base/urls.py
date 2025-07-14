@@ -11,6 +11,12 @@ urlpatterns = [
     path('',views.index , name='index'),
     #####
     path('account/sign_in' ,views.account.sign_in , name = 'sign_in' ),
+    path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
+    path('account/verify_otp', views.account.verify_otp, name = 'verify_otp'),
+    path('account/get_account/<str:id>', views.account.get_account, name = 'get_account'),
+    path('account/update_user_photo/<str:id>', views.account.update_user_photo, name = 'update_user_photo'),
+    #####
+    path('homepage', views.homepage.get_homepage, name = 'homepage' ),
     #####
     path ('pet/add' , views.pet.add_pet, name = 'add_pet'),
     path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
@@ -22,8 +28,8 @@ urlpatterns = [
     path ('pet/update/vaccinations/<str:id>', views.update_vaccinations, name = 'update_vaccinations'),
 
     #####
-    path('vaccination/dog/update/<str:id>' , views.vaccination.update_dog_vaccination, name = 'update_dog_vaccination'),
-    path('vaccination/cat/update/<str:id>' , views.vaccination.update_cat_vaccination, name = 'update_cat_vaccination'),
+    #path('vaccination/dog/update/<str:id>' , views.vaccination.update_dog_vaccination, name = 'update_dog_vaccination'),
+    #path('vaccination/cat/update/<str:id>' , views.vaccination.update_cat_vaccination, name = 'update_cat_vaccination'),
 
     #####
     path ('post/adoption/add/<str:id>', views.post.add_adoption_post , name = 'add_adoption_post'),
@@ -31,6 +37,7 @@ urlpatterns = [
     path ('post/adoption/get/<str:id>', views.post.get_adoption_post , name = 'get_adoption_post'),
     path ('post/adoption/get', views.post.get_adoption_posts , name = 'get_adoption_posts'),
     path ('post/adoption/filter', views.post.adoption_filter , name = 'doption_filter'),
+    path ('post/adoption/search', views.post.adoption_post_search , name = 'adoption_post_search'),
 
     #####
     path('product/add' , views.product.add_product, name = 'add_product'),
@@ -39,10 +46,18 @@ urlpatterns = [
     path('product/get/<str:id>', views.get_product, name = 'get_product'),
     path('product/filter', views.product_filter, name = 'product_filter'),
     path('product/search', views.product_search, name = 'product_search'),
+    path('product/update/<str:id>', views.update_product_photo, name = 'update_product_photo'),
 
     #####
     path('store/create', views.create_store, name= 'create_store'),
-    path('store/delete', views.delete_store, name = 'delete_store'),
+    path('store/delete/<str:id>', views.delete_store, name = 'delete_store'),
     path('store/get/<str:id>', views.get_store, name = 'get_store'),
+    path('store/update/<str:id>', views.update_store_photo, name = 'update_store_photo'),
+
+    ######
+    path('doctor/join', views.doctor.join_as_doctor, name = 'join_as_doctor'),
+    path('doctor/update_certificate_image/<str:id>', views.doctor.update_certificate_photo, name = 'update_certificate_photo'),
+    path('doctor/add_post', views.doctor.add_post, name = 'add_post'),
+    path('doctor/get_posts', views.doctor.get_posts, name = 'get_posts'),
 
 ]

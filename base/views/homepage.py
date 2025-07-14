@@ -7,7 +7,7 @@ from ..serializers import AdoptionPostSerializer, BreedingPostSerializer, Produc
 from rest_framework import status
 
 @api_view(['GET'])
-def homepage (request):
+def get_homepage (request):
     adoption_posts = AdoptionPost.objects.all()[:10]
     adoption_posts = AdoptionPostSerializer(adoption_posts, many = True).data
     breeding_posts = BreedingPost.objects.all()[:10]
