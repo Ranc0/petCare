@@ -7,8 +7,9 @@ from ..models import Doctor, DoctorPost
 from rest_framework import status
 from PIL import Image
 import os
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def join_as_doctor (request):

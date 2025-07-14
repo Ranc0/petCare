@@ -49,16 +49,18 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from ..models import Doctor, DoctorPost, UserPhoto
+from ..models import Doctor, DoctorPost
 from ..serializers import DoctorPostSerializer
 from PIL import Image
 import os
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 def generate_and_send_otp(user):
     otp = str(random.randint(100000, 999999))

@@ -1,5 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+
+class CustomUser(AbstractUser):
+    country = models.CharField(max_length = 100 , default="Syria")
+    user_photo = models.ImageField(null=True , blank=True , upload_to='images/')
+
 
 class Pet (models.Model):
     gender_choices = [
@@ -22,7 +27,7 @@ class Pet (models.Model):
         max_length=3,
         choices=type_choices
     )
-    user = models.ForeignKey(User , on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser , on_delete=models.CASCADE)
 
 
 class CatVaccination (models.Model):
@@ -47,13 +52,13 @@ class DogVaccination (models.Model):
 class AdoptionPost(models.Model):
     details = models.TextField(max_length=100 , null = True , blank = True)
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
-    user = models.ForeignKey(User , on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser , on_delete=models.CASCADE)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 class BreedingPost(models.Model):
     details = models.TextField(max_length=100 , null = True , blank = True)
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
-    user = models.ForeignKey(User , on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser , on_delete=models.CASCADE)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 
@@ -71,7 +76,7 @@ class Product(models.Model):
     )
     details = models.TextField(max_length=100)
     shipping = models.BooleanField()
-    user = models.ForeignKey(User , on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser , on_delete=models.CASCADE,null=True, blank=True)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 
@@ -79,7 +84,7 @@ class Store(models.Model):
     store_name = models.CharField(max_length=30)
     location = models.CharField(null = True,max_length=500)
     logo = models.ImageField(null=True, blank=True, upload_to='images/')
-    user = models.OneToOneField(User, on_delete= models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete= models.CASCADE)
 
     def delete(self, *args, **kwargs):
         # Delete the Doctor instance without deleting the associated User
@@ -89,7 +94,7 @@ class Store(models.Model):
 class Doctor(models.Model):
     certificate_image = models.ImageField(null = True, blank  =True, upload_to = 'images/')
     experience = models.IntegerField(default=0)
-    user = models.OneToOneField(User, on_delete= models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete= models.CASCADE)
 
     def delete(self, *args, **kwargs):
         self.user = None
@@ -99,8 +104,8 @@ class DoctorPost(models.Model):
     post_title = models.CharField(null = True, max_length=200)
     post = models.CharField(null = True, max_length=1000)
     date = models.DateField(null = True, auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
-class UserPhoto(models.Model):
-    user_photo = models.ImageField(null = True, blank  =True, upload_to = 'images/')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+# class UserPhoto(models.Model):
+#     user_photo = models.ImageField(null = True, blank  =True, upload_to = 'images/')
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

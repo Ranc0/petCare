@@ -171,3 +171,5 @@ EMAIL_HOST_USER = 'alrashidlina77@gmail.com'
 EMAIL_HOST_PASSWORD = 'irry tljn opcd lgxi'
 DEFAULT_FROM_EMAIL = 'OTPreplier@gmail.com'
 SEND_OTP_EMAIL = True
+
+AUTH_USER_MODEL = 'base.CustomUser'

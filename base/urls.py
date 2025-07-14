@@ -14,7 +14,7 @@ urlpatterns = [
     path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
     path('account/verify_otp', views.account.verify_otp, name = 'verify_otp'),
     path('account/get_account/<str:id>', views.account.get_account, name = 'get_account'),
-    path('account/update_user_photo/<str:id>', views.account.update_user_photo, name = 'update_user_photo'),
+    # path('account/update_user_photo/<str:id>', views.account.update_user_photo, name = 'update_user_photo'),
     #####
     path('homepage', views.homepage.get_homepage, name = 'homepage' ),
     #####
@@ -24,8 +24,8 @@ urlpatterns = [
     path ('pet/get_user_pets', views.pet.get_user_pets, name = 'get_user_pets'),
     path ('pet/delete/<str:id>' , views.pet.delete_pet, name = 'delete_pet'),
     path ('pet/update_photo/<str:id>' , views.pet.update_pet_photo, name = 'update_pet_photo'),
-    path ('pet/get/vaccinations/<str:id>', views.get_vaccinations, name = 'get_vaccinations'),
-    path ('pet/update/vaccinations/<str:id>', views.update_vaccinations, name = 'update_vaccinations'),
+    path ('pet/get/vaccinations/<str:id>', views.pet.get_vaccinations, name = 'get_vaccinations'),
+    path ('pet/update/vaccinations/<str:id>', views.pet.update_vaccinations, name = 'update_vaccinations'),
 
     #####
     #path('vaccination/dog/update/<str:id>' , views.vaccination.update_dog_vaccination, name = 'update_dog_vaccination'),
