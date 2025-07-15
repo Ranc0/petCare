@@ -2,7 +2,29 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
-    country = models.CharField(max_length = 100 , default="Syria")
+    country_choices = [
+    ('syria', 'Syria'),
+    ('palestine', 'Palestine'),
+    ('iraq', 'Iraq'),
+    ('jordan', 'Jordan'),
+    ('lebanon', 'Lebanon'),
+    ('egypt', 'Egypt'),
+    ('saudi_arabia', 'Saudi Arabia'),
+    ('turkey', 'Turkey'),
+    ('iran', 'Iran'),
+    ('yemen', 'Yemen'),
+    ('kuwait', 'Kuwait'),
+    ('uae', 'United Arab Emirates'),
+    ('qatar', 'Qatar'),
+    ('oman', 'Oman'),
+    ('libya', 'Libya'),
+    ('tunisia', 'Tunisia'),
+    ('algeria', 'Algeria'),
+    ('morocco', 'Morocco'),
+    ('sudan', 'Sudan'),
+    ('bahrain', 'Bahrain'),
+]
+    country = models.CharField(max_length = 100, choices=country_choices , default="syria")
     user_photo = models.ImageField(null=True , blank=True , upload_to='images/')
 
 
