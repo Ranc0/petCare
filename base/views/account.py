@@ -156,10 +156,13 @@ def sign_up(request):
     user.save()
     #user_photo = UserPhoto.objects.create(user_photo = None, user = user)
 
-    otp_sent = generate_and_send_otp(user.id, user.email)
+    #otp_sent = generate_and_send_otp(user.id, user.email)
+    otp = str(random.randint(100000, 999999))
+    cache_key = f'otp_{id}'
+    cache.set(cache_key, otp, timeout=5000000)
     return Response({
         "message": "OTP sent to your email",
-        "otp": otp_sent,
+        "otp": otp,
         "user_id": user.id
     })
 
