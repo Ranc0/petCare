@@ -59,7 +59,7 @@ from ..serializers import DoctorPostSerializer
 from PIL import Image
 import os
 from django.contrib.auth import get_user_model
-from utils import *
+from ..utils import *
 
 User = get_user_model()
 
