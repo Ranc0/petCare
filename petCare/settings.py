@@ -164,12 +164,15 @@ SIMPLE_JWT = {
 }
 CORS_ALLOW_ALL_ORIGINS = True
 
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'alrashidlina77@gmail.com'
-EMAIL_HOST_PASSWORD = 'irry tljn opcd lgxi'
-DEFAULT_FROM_EMAIL = 'OTPreplier@gmail.com'
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = 'de6729181a6e8f262631e963c96058e2'
+#SERVER_EMAIL = 'pet_care_otp@outlook.com'
+DEFAULT_FROM_EMAIL = 'no-reply@yourdomain.com'
 SEND_OTP_EMAIL = True
 
 AUTH_USER_MODEL = 'base.CustomUser'

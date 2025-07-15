@@ -59,6 +59,7 @@ from ..serializers import DoctorPostSerializer
 from PIL import Image
 import os
 from django.contrib.auth import get_user_model
+from utils import *
 
 User = get_user_model()
 
@@ -71,7 +72,7 @@ def generate_and_send_otp(user):
         send_mail(
             'Your OTP Code',
             f'Your verification code is: {otp}',
-            settings.DEFAULT_FROM_EMAIL,
+            'no-reply@yourdomain.com',
             [user.email],
             fail_silently=False,
         )
