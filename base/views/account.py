@@ -63,19 +63,20 @@ from ..utils import *
 
 User = get_user_model()
 
-def generate_and_send_otp(user):
+def generate_and_send_otp(id, email):
     otp = str(random.randint(100000, 999999))
-    cache_key = f'otp_{user.id}'
+    cache_key = f'otp_{id}'
     cache.set(cache_key, otp, timeout=5000000)
 
     if settings.SEND_OTP_EMAIL:
-        send_mail(
-            'Your OTP Code',
-            f'Your verification code is: {otp}',
-            'no-reply@yourdomain.com',
-            [user.email],
-            fail_silently=False,
-        )
+        #send_mail(
+        #    'Your OTP Code',
+        #    f'Your verification code is: {otp}',
+        #    'no-reply@yourdomain.com',
+        #    [user.email],
+        #    fail_silently=False,
+        #)
+        send_otp_email(email, otp)
     return otp
 
 def handle_otp_verification(user_id, submitted_otp):
@@ -155,7 +156,7 @@ def sign_up(request):
     user.save()
     #user_photo = UserPhoto.objects.create(user_photo = None, user = user)
 
-    otp_sent = generate_and_send_otp(user)
+    otp_sent = generate_and_send_otp(user.id, user.email)
     return Response({
         "message": "OTP sent to your email",
         "otp": otp_sent,
