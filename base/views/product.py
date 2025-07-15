@@ -35,7 +35,6 @@ def add_product (request):
         #store = Store.objects.get(user=product.user)
         logo = store.logo.url if store.logo else None
         response.update({"store_name":store.store_name})
-        response.update({"location":store.location})
         response.update({"logo":logo})
         return Response(response , status=status.HTTP_201_CREATED)
     else:
@@ -73,7 +72,6 @@ def get_product (request, id):
     response = ProductSerializer(product).data
     response.update({"photo":photo})
     response.update({"store_name":store.store_name})
-    response.update({"location":store.location})
     response.update({"logo":logo})
     return Response(response, status= status.HTTP_200_OK)
 
@@ -84,10 +82,15 @@ def product_filter (request):
         'category': request.data.get('category',None),
     }
     price = request.data.get('price',None)
+    country = request.data.get('country',None)
     if price:
         filter_params['price__lte'] = price
+    if country:
+        filter_params['user__country'] = country
+
     filter_params = {key: value for key, value in filter_params.items() if value is not None}
-    products = Product.objects.filter(**filter_params).order_by('price')
+    products = Product.objects.filter(**filter_params)
+
     response = []
     for product in products:
         photo = product.photo.url if product.photo else None

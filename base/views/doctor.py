@@ -62,7 +62,7 @@ def add_post(request):
     if (obj.is_valid()):
         obj = obj.data
         obj.update({ "user" : user }) 
-        doctor_post = DoctorPost.objects.create(**obj, user = user)
+        doctor_post = DoctorPost.objects.create(**obj)
         return Response(DoctorPostSerializer(doctor_post).data , status=status.HTTP_201_CREATED )
     return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
 

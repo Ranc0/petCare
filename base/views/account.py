@@ -59,6 +59,7 @@ from ..serializers import DoctorPostSerializer
 from PIL import Image
 import os
 from django.contrib.auth import get_user_model
+from ..utils import *
 
 User = get_user_model()
 
@@ -71,7 +72,7 @@ def generate_and_send_otp(user):
         send_mail(
             'Your OTP Code',
             f'Your verification code is: {otp}',
-            settings.DEFAULT_FROM_EMAIL,
+            'no-reply@yourdomain.com',
             [user.email],
             fail_silently=False,
         )
@@ -152,7 +153,7 @@ def sign_up(request):
     user = User.objects.create(username=username, email=email, first_name = first_name, last_name = last_name, is_active=False)
     user.set_password(password)
     user.save()
-    user_photo = UserPhoto.objects.create(user_photo = None, user = user)
+    #user_photo = UserPhoto.objects.create(user_photo = None, user = user)
 
     otp_sent = generate_and_send_otp(user)
     return Response({
@@ -164,9 +165,13 @@ def sign_up(request):
 @api_view(['GET'])
 def get_account(request, id):
     user = get_object_or_404(User, id = id)
-    response = {"username":user.username, "email":user.email, "first_name":"Dr."+user.first_name, "last_name":user.last_name}
-    photo = UserPhoto(user = user)
-    response.update({"user_photo":photo.user_photo.url if photo.user_photo else None})
+    response = {"username":user.username, 
+                "email":user.email, 
+                "first_name":"Dr."+user.first_name, 
+                "last_name":user.last_name,
+                "user_photo": user.user_photo.url if user.user_photo else None}
+    #photo = UserPhoto(user = user)
+    #response.update({"user_photo":photo.user_photo.url if photo.user_photo else None})
     
     if Doctor.objects.filter(user = user):
         doctor = Doctor.objects.get(user = user)
@@ -188,10 +193,9 @@ def update_user_photo(request, id):
         user = user[0]
     else:
         return Response({"message":"user not found"}, status= status.HTTP_404_NOT_FOUND)
-    photo = request.FILES.get('user_photo')
+    photo = request.FILES.get("user_photo")
     if not photo:
         return Response({"message": "user photo is required"}, status=status.HTTP_400_BAD_REQUEST)
-    user_photo = UserPhoto.objects.get(user = user)
 
     try:
         # Validate the uploaded file as an image
@@ -199,15 +203,15 @@ def update_user_photo(request, id):
         image.verify()  # Verify the image integrity
 
         # Delete the old photo if it exists
-        if user_photo.user_photo and os.path.isfile(user_photo.user_photo.path):
-            os.remove(user_photo.user_photo.path)
+        if user.user_photo and os.path.isfile(user.user_photo.path):
+            os.remove(user.user_photo.path)
 
         # Update the photo field
-        user_photo.user_photo = photo
-        user_photo.save()
+        user.user_photo = photo
+        user.save()
 
         # Serialize the updated pet object
-        response= {"user_photo":user_photo.user_photo.url if user_photo.user_photo else None}
+        response= {"user_photo":user.user_photo.url if user.user_photo else None}
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):

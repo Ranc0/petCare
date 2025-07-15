@@ -14,9 +14,11 @@ urlpatterns = [
     path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
     path('account/verify_otp', views.account.verify_otp, name = 'verify_otp'),
     path('account/get_account/<str:id>', views.account.get_account, name = 'get_account'),
-    # path('account/update_user_photo/<str:id>', views.account.update_user_photo, name = 'update_user_photo'),
+    path('account/update_user_photo/<str:id>', views.account.update_user_photo, name = 'update_user_photo'),
+    
     #####
     path('homepage', views.homepage.get_homepage, name = 'homepage' ),
+    
     #####
     path ('pet/add' , views.pet.add_pet, name = 'add_pet'),
     path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
@@ -38,15 +40,22 @@ urlpatterns = [
     path ('post/adoption/get', views.post.get_adoption_posts , name = 'get_adoption_posts'),
     path ('post/adoption/filter', views.post.adoption_filter , name = 'doption_filter'),
     path ('post/adoption/search', views.post.adoption_post_search , name = 'adoption_post_search'),
+    
+    path ('post/breeding/add/<str:id>', views.post.add_breeding_post , name = 'add_breeding_post'),
+    path ('post/breeding/delete/<str:id>', views.post.delete_breeding_post , name = 'delete_breeding_post'),
+    path ('post/breeding/get/<str:id>', views.post.get_breeding_post , name = 'get_breeding_post'),
+    path ('post/breeding/get', views.post.get_breeding_posts , name = 'get_breeding_posts'),
+    path ('post/breeding/filter', views.post.breeding_filter , name = 'breeding_filter'),
+    path ('post/breeding/search', views.post.breeding_post_search , name = 'breeding_post_search'),
 
     #####
     path('product/add' , views.product.add_product, name = 'add_product'),
     path('product/delete/<str:id>' , views.product.delete_product, name = 'delete_product'),
     path('product/get', views.product.get_products, name = 'get_products'),
-    path('product/get/<str:id>', views.get_product, name = 'get_product'),
-    path('product/filter', views.product_filter, name = 'product_filter'),
-    path('product/search', views.product_search, name = 'product_search'),
-    path('product/update/<str:id>', views.update_product_photo, name = 'update_product_photo'),
+    path('product/get/<str:id>', views.product.get_product, name = 'get_product'),
+    path('product/filter', views.product.product_filter, name = 'product_filter'),
+    path('product/search', views.product.product_search, name = 'product_search'),
+    path('product/update/<str:id>', views.product.update_product_photo, name = 'update_product_photo'),
 
     #####
     path('store/create', views.create_store, name= 'create_store'),
