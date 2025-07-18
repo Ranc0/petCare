@@ -9,7 +9,7 @@
 #@api_view(['POST'])
 #def sign_in(request):
 
-    # sign in using email can be added 
+    # sign in using email can be added
 #    username = request.data['username']
 #    password = request.data['password']
 #    user = authenticate(username=username, password=password)
@@ -21,10 +21,10 @@
 #    })
 #    else :
 #        return Response({"message":"couldn't sign in"} , status = status.HTTP_401_UNAUTHORIZED)
-    
+
 #@api_view(['POST'])
 #def sign_up(request):
-    #you do it 
+    #you do it
 #    username = request.data['username']
 #    password = request.data['password']
 #    confirm_password = request.data['confirm_password']
@@ -44,7 +44,6 @@ import random
 from datetime import timedelta
 from django.core.cache import cache
 from django.conf import settings
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
@@ -59,7 +58,7 @@ from ..serializers import DoctorPostSerializer
 from PIL import Image
 import os
 from django.contrib.auth import get_user_model
-from ..utils import *
+#from ..utils import *
 
 User = get_user_model()
 
@@ -68,14 +67,14 @@ def generate_and_send_otp(user):
     cache_key = f'otp_{user.id}'
     cache.set(cache_key, otp, timeout=300)
 
-    if settings.SEND_OTP_EMAIL:
-        send_mail(
-            'Your OTP Code',
-            f'Your verification code is: {otp}',
-            'PertCareApp',
-            [user.email],
-            fail_silently=False,
-        )
+    # if settings.SEND_OTP_EMAIL:
+    #     send_mail(
+    #         'Your OTP Code',
+    #         f'Your verification code is: {otp}',
+    #         'PertCareApp',
+    #         [user.email],
+    #         fail_silently=False,
+    #     )
         #send_otp_email(email, otp)
     return otp
 
@@ -99,7 +98,7 @@ def handle_otp_verification(user_id, submitted_otp, request_status):
         pending_user.delete()
     else:
         user = User.objects.get(id = user_id)
-    
+
     return True, "OTP verified successfully", user
 
 @api_view(['POST'])
@@ -112,6 +111,7 @@ def verify_otp(request):
         request_status = "forgot_password"
     else:
         return Response({"error": "Invalid endpoint"}, status=status.HTTP_400_BAD_REQUEST)
+
 
     if not user_id or not otp:
         return Response({"error": "user_id and otp are required"},status=status.HTTP_400_BAD_REQUEST)
@@ -152,10 +152,10 @@ def sign_up(request):
     last_name = request.data.get('last_name',None)
     country = request.data.get('country',None)
 
-    if User.objects.filter(username=username).exists() or PendingUser.objects.filter(username=username).exists() :
-        return Response({"message": "Username exists"}, status=status.HTTP_409_CONFLICT)
     if User.objects.filter(email=email).exists() or PendingUser.objects.filter(email=email).exists():
         return Response({"message": "Email exists"}, status=status.HTTP_409_CONFLICT)
+    if User.objects.filter(username=username).exists() or PendingUser.objects.filter(username=username).exists():
+        return Response({"message": "Username exists"}, status=status.HTTP_409_CONFLICT)
     if password != confirm_password:
         return Response({"message": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -189,7 +189,7 @@ def reset_password(request, id):
     password = request.data.get('new_password')
     confirm_password = request.data.get('confirm_password')
     if password != confirm_password:
-        return Response({"message": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST) 
+        return Response({"message": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
     user.set_password(password)
     user.save()
     return Response({"message":"password updated successfully"}, status= status.HTTP_202_ACCEPTED)
@@ -198,14 +198,14 @@ def reset_password(request, id):
 @api_view(['GET'])
 def get_account(request, id):
     user = get_object_or_404(User, id = id)
-    response = {"username":user.username, 
-                "email":user.email, 
-                "first_name":"Dr."+user.first_name, 
+    response = {"username":user.username,
+                "email":user.email,
+                "first_name":"Dr."+user.first_name,
                 "last_name":user.last_name,
                 "user_photo": user.user_photo.url if user.user_photo else None}
     #photo = UserPhoto(user = user)
     #response.update({"user_photo":photo.user_photo.url if photo.user_photo else None})
-    
+
     if Doctor.objects.filter(user = user):
         doctor = Doctor.objects.get(user = user)
         response.update({"experience":doctor.experience})
