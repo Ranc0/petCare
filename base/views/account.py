@@ -66,7 +66,7 @@ User = get_user_model()
 def generate_and_send_otp(user):
     otp = str(random.randint(100000, 999999))
     cache_key = f'otp_{user.id}'
-    cache.set(cache_key, otp, timeout=5000000)
+    cache.set(cache_key, otp, timeout=300)
 
     if settings.SEND_OTP_EMAIL:
         send_mail(
@@ -91,7 +91,7 @@ def handle_otp_verification(user_id, submitted_otp, request_status):
 
     cache.delete(cache_key)
     print(request_status)
-    if request_status == '1':
+    if request_status == 'sign_up':
         pending_user = PendingUser.objects.get(id = user_id)
         user = User.objects.create(username=pending_user.username, email=pending_user.email,first_name = pending_user.first_name, last_name = pending_user.last_name,country = pending_user.country)
         user.set_password(pending_user.password)
@@ -103,9 +103,15 @@ def handle_otp_verification(user_id, submitted_otp, request_status):
     return True, "OTP verified successfully", user
 
 @api_view(['POST'])
-def verify_otp(request, request_status):
+def verify_otp(request):
     user_id = request.data.get('user_id')
     otp = request.data.get('otp')
+    if request.path.endswith('/sign_up'):
+        request_status = "sign_up"
+    elif request.path.endswith('/forgot_password'):
+        request_status = "forgot_password"
+    else:
+        return Response({"error": "Invalid endpoint"}, status=status.HTTP_400_BAD_REQUEST)
 
     if not user_id or not otp:
         return Response({"error": "user_id and otp are required"},status=status.HTTP_400_BAD_REQUEST)
@@ -165,7 +171,7 @@ def sign_up(request):
     })
 
 @api_view(['GET'])
-def forget_password(request, id):
+def forgot_password(request, id):
     user = get_object_or_404(User, id = id)
     otp_sent = generate_and_send_otp(user)
     return Response({
