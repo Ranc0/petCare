@@ -172,9 +172,10 @@ def sign_up(request):
         "user_id": pending_user.id
     })
 
-@api_view(['GET'])
-def forgot_password(request, id):
-    user = get_object_or_404(User, id = id)
+@api_view(['POST'])
+def forgot_password(request):
+    email = request.data.get('email')
+    user = get_object_or_404(User, email = email)
     otp_sent = generate_and_send_otp(user)
     return Response({
         "message": "OTP sent to your email",
