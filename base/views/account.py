@@ -152,8 +152,10 @@ def sign_up(request):
     last_name = request.data.get('last_name',None)
     country = request.data.get('country',None)
 
-    if User.objects.filter(username=username).exists() or PendingUser.objects.filter(username=username).exists():
+    if User.objects.filter(username=username).exists() or PendingUser.objects.filter(username=username).exists() :
         return Response({"message": "Username exists"}, status=status.HTTP_409_CONFLICT)
+    if User.objects.filter(email=email).exists() or PendingUser.objects.filter(email=email).exists():
+        return Response({"message": "Email exists"}, status=status.HTTP_409_CONFLICT)
     if password != confirm_password:
         return Response({"message": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
 
