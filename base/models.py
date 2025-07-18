@@ -131,3 +131,34 @@ class DoctorPost(models.Model):
 # class UserPhoto(models.Model):
 #     user_photo = models.ImageField(null = True, blank  =True, upload_to = 'images/')
 #     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+class PendingUser(models.Model):
+    country_choices = [
+    ('syria', 'Syria'),
+    ('palestine', 'Palestine'),
+    ('iraq', 'Iraq'),
+    ('jordan', 'Jordan'),
+    ('lebanon', 'Lebanon'),
+    ('egypt', 'Egypt'),
+    ('saudi_arabia', 'Saudi Arabia'),
+    ('turkey', 'Turkey'),
+    ('iran', 'Iran'),
+    ('yemen', 'Yemen'),
+    ('kuwait', 'Kuwait'),
+    ('uae', 'United Arab Emirates'),
+    ('qatar', 'Qatar'),
+    ('oman', 'Oman'),
+    ('libya', 'Libya'),
+    ('tunisia', 'Tunisia'),
+    ('algeria', 'Algeria'),
+    ('morocco', 'Morocco'),
+    ('sudan', 'Sudan'),
+    ('bahrain', 'Bahrain'),
+]
+    country = models.CharField(max_length = 100, choices=country_choices , default="syria")
+    username = models.CharField(null = True, max_length=200)
+    email = models.CharField(null = True, max_length=200)
+    first_name = models.CharField(null = True, max_length=200)
+    last_name = models.CharField(null = True, max_length=200)
+    password = models.CharField(null = True, max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
