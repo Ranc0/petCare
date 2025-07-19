@@ -201,7 +201,7 @@ def get_account(request, id):
     user = get_object_or_404(User, id = id)
     response = {"username":user.username,
                 "email":user.email,
-                "first_name":"Dr."+user.first_name,
+                "first_name":user.first_name,
                 "last_name":user.last_name,
                 "user_photo": user.user_photo.url if user.user_photo else None}
     #photo = UserPhoto(user = user)
@@ -209,6 +209,7 @@ def get_account(request, id):
 
     if Doctor.objects.filter(user = user):
         doctor = Doctor.objects.get(user = user)
+        response.update({"first_name":"Dr." + user.first_name})
         response.update({"experience":doctor.experience})
         holder = []
         posts = DoctorPost.objects.filter(user = user)
