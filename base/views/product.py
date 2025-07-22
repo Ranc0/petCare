@@ -62,8 +62,8 @@ def get_products(request):
     products = Product.objects.all()
     response = []
 
-    holder = {}
     for product in products:
+        holder = {}
         photo = None
         if product.photo :
             photo = f"{settings.DOMAIN}{product.photo.url}"
