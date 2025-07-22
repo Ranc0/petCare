@@ -8,6 +8,8 @@ from rest_framework import status
 from PIL import Image
 import os
 from django.contrib.auth import get_user_model
+from django.conf import settings
+
 
 User = get_user_model()
 @permission_classes([IsAuthenticated])
@@ -17,7 +19,7 @@ def add_pet (request):
     obj = PetSerializer(data = request.data, many = False)
     if (obj.is_valid()):
         obj = obj.data
-        obj.update({ "user" : user }) 
+        obj.update({ "user" : user })
         #photo = request.FILES.get('photo')
         #obj.pop('photo')
         pet = Pet.objects.create(**obj , photo = None)
@@ -42,7 +44,12 @@ def update_pet (request , id ):
             setattr(pet, attr, value)
         pet.save()
         response = PetSerializer(pet).data
-        response.update({'photo':pet.photo.url if pet.photo else None})
+
+        photo = None
+
+        if pet.photo:
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+        response.update({'photo':photo})
         return Response(response, status= status.HTTP_200_OK)
     else:
         return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
@@ -61,9 +68,14 @@ def delete_pet (request , id ):
 def get_pet (request , id ):
     pet = get_object_or_404(Pet, id = id)
     response = PetSerializer(pet).data
-    response.update({'photo':pet.photo.url if pet.photo else None})
+
+    photo = None
+
+    if pet.photo:
+        photo = f"{settings.DOMAIN}{pet.photo.url}"
+    response.update({'photo':photo})
     return Response(response, status= status.HTTP_200_OK)
-    
+
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_user_pets (request):
@@ -72,7 +84,12 @@ def get_user_pets (request):
     pets = Pet.objects.filter(user = user)
     for pet in pets:
         pet1 = PetSerializer(pet).data
-        pet1.update({'photo':pet.photo.url if pet.photo else None})
+        photo = None
+
+        if pet.photo:
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+        pet1.update({'photo':photo})
+
         response.append(pet1)
     return Response( response, status= status.HTTP_200_OK )
 
@@ -103,12 +120,15 @@ def update_pet_photo(request, id):
 
         # Serialize the updated pet object
         response = PetSerializer(pet).data
-        response.update({"photo": pet.photo.url if pet.photo else None})
+        ph = None
+        if pet.photo:
+            ph = f"{settings.DOMAIN}{pet.photo.url}"
+        response.update({"photo": ph})
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):
         return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_vaccinations (request , id):
@@ -133,7 +153,7 @@ def update_vaccinations(request, id):
         pet = Pet.objects.get(id = id)
     except Pet.DoesNotExist:
         return Response({'message':'pet not found'}, status= 404)
-    
+
     if request.user != pet.user:
         return Response({'message':'user does not have the pet'}, status = 401)
     if pet.type == 'cat':
@@ -142,7 +162,7 @@ def update_vaccinations(request, id):
     elif pet.type == 'dog':
         vaccination = DogVaccination.objects.get(pet = pet)
         obj = DogVaccinationSerializer(data=request.data, many = False)
-        
+
     if obj.is_valid():
         for attr, value in obj.data.items():
             setattr(vaccination, attr, value)
@@ -154,4 +174,4 @@ def update_vaccinations(request, id):
         return Response(response , status = 200)
     else:
         return Response(obj.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+

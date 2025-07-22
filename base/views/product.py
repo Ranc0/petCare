@@ -11,6 +11,8 @@ from django.db.models import Q
 from PIL import Image
 import os
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+
 
 #views to add :
 #add product
@@ -29,17 +31,22 @@ def add_product (request):
         obj.update({ "user" : user })
         Product.objects.create(**obj)
         product = Product.objects.last()
-        photo = product.photo.url if product.photo else None
+        photo = None
+        if product.photo :
+            photo = f"{settings.DOMAIN}{product.photo.url}"
+
         response = ProductSerializer(product).data
-        response.update({'photo':photo})
         #store = Store.objects.get(user=product.user)
-        logo = store.logo.url if store.logo else None
+        logo = None
+        if store.logo:
+           logo = f"{settings.DOMAIN}{store.logo.url}"
+        response.update({"photo":photo})
         response.update({"store_name":store.store_name})
         response.update({"logo":logo})
         return Response(response , status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
-    
+
 @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_product (request, id):
@@ -56,9 +63,15 @@ def get_products(request):
     response = []
 
     for product in products:
-        serialized = ProductSerializer(product).data
-        serialized["photo"] = product.photo.url if product.photo else None
-        response.append(serialized)
+        holder = {}
+        photo = None
+        if product.photo :
+            photo = f"{settings.DOMAIN}{product.photo.url}"
+        holder.update({"id":product.id})
+        holder.update({"photo":photo})
+        holder.update({"name":product.name})
+        holder.update({"price":product.price})
+        response.append(holder)
 
     return Response(response, status=status.HTTP_200_OK)
 
@@ -66,9 +79,13 @@ def get_products(request):
 @api_view(['GET'])
 def get_product (request, id):
     product = get_object_or_404(Product, id=id)
-    photo = product.photo.url if product.photo else None
+    photo = None
+    if product.photo:
+        photo = f"{settings.DOMAIN}{product.photo.url}"
     store = Store.objects.get(user=product.user)
-    logo = store.logo.url if store.logo else None
+    logo = None
+    if store.logo:
+        logo = f"{settings.DOMAIN}{store.logo.url}"
     response = ProductSerializer(product).data
     response.update({"photo":photo})
     response.update({"store_name":store.store_name})
@@ -93,7 +110,10 @@ def product_filter (request):
 
     response = []
     for product in products:
-        photo = product.photo.url if product.photo else None
+        photo = None
+        if product.photo:
+            photo = f"{settings.DOMAIN}{product.photo.url}"
+
         product = ProductSerializer(product).data
         product.update({"photo":photo})
         response.append(product)
@@ -109,7 +129,9 @@ def product_search(request):
         products = Product.objects.all()
     response = []
     for product in products:
-        photo = product.photo.url if product.photo else None
+        photo = None
+        if product.photo:
+            photo = f"{settings.DOMAIN}{product.photo.url}"
         product = ProductSerializer(product).data
         product.update({"photo":photo})
         response.append(product)
@@ -142,7 +164,10 @@ def update_product_photo(request, id):
 
         # Serialize the updated pet object
         response = ProductSerializer(product).data
-        response.update({"photo": product.photo.url if product.photo else None})
+        ph = None
+        if product.photo:
+             ph= f"{settings.DOMAIN}{product.photo.url}"
+        response.update({"photo": ph})
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):

@@ -12,9 +12,14 @@ urlpatterns = [
     #####
     path('account/sign_in' ,views.account.sign_in , name = 'sign_in' ),
     path('account/sign_up' ,views.account.sign_up , name = 'sign_up' ),
-    path('account/verify_otp', views.account.verify_otp, name = 'verify_otp'),
     path('account/get_account/<str:id>', views.account.get_account, name = 'get_account'),
     path('account/update_user_photo/<str:id>', views.account.update_user_photo, name = 'update_user_photo'),
+
+    path('account/verify_otp/sign_up', views.account.verify_otp, name='verify_otp_sign_up'),
+    path('account/verify_otp/forgot_password', views.account.verify_otp, name='verify_otp_forgot_password'),
+    path('account/resend_code', views.account.forgot_password, name='resend_code' ),
+    path('account/forgot_password',views.account.forgot_password, name = 'forgot_password'),
+    path('account/reset_password/<str:id>', views.account.reset_password, name = 'reset_password'),
     
     #####
     path('homepage', views.homepage.get_homepage, name = 'homepage' ),
