@@ -9,6 +9,8 @@ User = get_user_model()
 from ..serializers import PetSerializer, AdoptionPostSerializer
 from rest_framework import status
 from django.db.models import Q
+from django.conf import settings
+
 
 
 @permission_classes([IsAuthenticated])
@@ -23,15 +25,19 @@ def add_adoption_post (request , id):
     post = AdoptionPost.objects.create(pet = pet , user = user , details = details)
     serialized_pet = PetSerializer( pet, many=False).data
     response = serialized_pet
-    response.update({"photo":pet.photo.url if pet.photo else None})
+    photo = None
+    if pet.photo :
+        photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+    response.update({"photo":photo})
     response.update({"details":details})
     response.update({"id":post.id})
     return Response(response , status=status.HTTP_201_CREATED)
 
-#delete post should be made 
-#no need to make a view for updating 
+#delete post should be made
+#no need to make a view for updating
 #a getter should be made to list all the posts available
-#getters can be separated for dogs and cats ( filters ) 
+#getters can be separated for dogs and cats ( filters )
 # same process for breeding posts (I made the model for you)
 
 @permission_classes([IsAuthenticated])
@@ -56,7 +62,11 @@ def get_adoption_posts (request):
         serialized_pet = PetSerializer(pet).data
         username = post.user.username
         holder = serialized_pet
-        holder.update({"photo":pet.photo.url if pet.photo else None})
+        photo = None
+        if pet.photo :
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+        holder.update({"photo":photo})
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
@@ -74,7 +84,12 @@ def get_adoption_post (request, id):
     pet = Pet.objects.get(id = post.pet_id)
     serialized_pet = PetSerializer(pet).data
     response = serialized_pet
-    response.update({"photo":pet.photo.url if pet.photo else None})
+    photo = None
+    if pet.photo :
+        photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+
+    response.update({"photo":photo})
     response.update({"username":username})
     response.update({"datails":post.details})
     response.update({"id":post.id})
@@ -100,7 +115,7 @@ def adoption_filter (request):
             filter_params['birth_date__lte'] = birth_date_obj
         except ValueError:
             return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     filter_params = {key: value for key, value in filter_params.items() if value is not None}
     pets = Pet.objects.filter(**filter_params)
     response = []
@@ -111,7 +126,11 @@ def adoption_filter (request):
             username = pet.user.username
             serialized_pet = PetSerializer(pet).data
             holder = serialized_pet
-            holder.update({"photo":pet.photo.url if pet.photo else None})
+            photo = None
+            if pet.photo :
+                photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+            holder.update({"photo":photo})
             holder.update({"username":username})
             holder.update({"details":post.details})
             response.append(holder)
@@ -133,7 +152,11 @@ def adoption_post_search(request):
         post = post[0]
         serialized_pet = PetSerializer(pet).data
         holder = serialized_pet
-        holder.update({"photo":pet.photo.url if pet.photo else None})
+        photo = None
+        if pet.photo :
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+        holder.update({"photo":photo})
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
@@ -154,7 +177,11 @@ def add_breeding_post (request , id):
     post = BreedingPost.objects.create(pet = pet , user = user , details = details)
     serialized_pet = PetSerializer( pet, many=False).data
     response = serialized_pet
-    response.update({"photo":pet.photo.url if pet.photo else None})
+    photo = None
+    if pet.photo :
+        photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+    response.update({"photo":photo})
     response.update({"details":details})
     response.update({"id":post.id})
     return Response(response , status=status.HTTP_201_CREATED)
@@ -180,7 +207,11 @@ def get_breeding_posts (request):
         serialized_pet = PetSerializer(pet).data
         username = post.user.username
         holder = serialized_pet
-        holder.update({"photo":pet.photo.url if pet.photo else None})
+        photo = None
+        if pet.photo :
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+        holder.update({"photo":photo})
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
@@ -197,7 +228,11 @@ def get_breeding_post (request, id):
     pet = Pet.objects.get(id = post.pet_id)
     serialized_pet = PetSerializer(pet).data
     response = serialized_pet
-    response.update({"photo":pet.photo.url if pet.photo else None})
+    photo = None
+    if pet.photo :
+        photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+    response.update({"photo":photo})
     response.update({"username":username})
     response.update({"datails":post.details})
     response.update({"id":post.id})
@@ -221,7 +256,7 @@ def breeding_filter (request):
             filter_params['birth_date__lte'] = birth_date_obj
         except ValueError:
             return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     filter_params = {key: value for key, value in filter_params.items() if value is not None}
     pets = Pet.objects.filter(**filter_params)
     response = []
@@ -232,7 +267,11 @@ def breeding_filter (request):
             username = pet.user.username
             serialized_pet = PetSerializer(pet).data
             holder = serialized_pet
-            holder.update({"photo":pet.photo.url if pet.photo else None})
+            photo = None
+            if pet.photo :
+                photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+            holder.update({"photo":photo})
             holder.update({"username":username})
             holder.update({"details":post.details})
             response.append(holder)
@@ -254,7 +293,12 @@ def breeding_post_search(request):
         post = post[0]
         serialized_pet = PetSerializer(pet).data
         holder = serialized_pet
-        holder.update({"photo":pet.photo.url if pet.photo else None})
+
+        photo = None
+        if pet.photo :
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+
+        holder.update({"photo":photo})
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})

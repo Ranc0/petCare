@@ -14,8 +14,8 @@ SECRET_KEY = 'django-insecure-m8(4rq3(xejb$lln+-e#qeezkq6lu!c#d*n1$gp7%g3(^b5%27
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['PetCareApplication.pythonanywhere.com','localhost']
-
+ALLOWED_HOSTS = ['PetCareApplication.pythonanywhere.com','localhost','127.0.0.1']
+DOMAIN = 'https://petcareapplication.pythonanywhere.com'
 
 # Application definition
 
