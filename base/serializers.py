@@ -10,10 +10,11 @@ class PetSerializer(serializers.ModelSerializer):
         model = Pet
         exclude = ('user', 'photo')
 
-    def get_age_in_days(self, obj):
+    def get_age(self, obj):
         if obj.birth_date:
             return (date.today() - obj.birth_date).days
         return None
+
 
 
 class CatVaccinationSerializer(serializers.ModelSerializer):
