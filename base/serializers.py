@@ -1,11 +1,20 @@
 from rest_framework import serializers
 from .models import Pet , CatVaccination , DogVaccination , AdoptionPost , BreedingPost , Product, Store, Doctor, DoctorPost
 from django.contrib.auth.models import User
+from datetime import date
 
 class PetSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+
     class Meta:
         model = Pet
-        exclude = ('user','photo')
+        exclude = ('user', 'photo')
+
+    def get_age_in_days(self, obj):
+        if obj.birth_date:
+            return (date.today() - obj.birth_date).days
+        return None
+
 
 class CatVaccinationSerializer(serializers.ModelSerializer):
     class Meta:

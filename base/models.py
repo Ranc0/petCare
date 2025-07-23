@@ -76,12 +76,16 @@ class AdoptionPost(models.Model):
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser , on_delete=models.CASCADE)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
+    created_at = models.DateTimeField(auto_now_add=True )
+
 
 class BreedingPost(models.Model):
     details = models.TextField(max_length=100 , null = True , blank = True)
     pet = models.ForeignKey(Pet , on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser , on_delete=models.CASCADE)
     photo = models.ImageField(null=True , blank=True , upload_to='images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 class Product(models.Model):

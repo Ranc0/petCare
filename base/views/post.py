@@ -65,11 +65,12 @@ def get_adoption_posts (request):
         photo = None
         if pet.photo :
             photo = f"{settings.DOMAIN}{pet.photo.url}"
-
+        
         holder.update({"photo":photo})
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
+        holder.update({"logo":post.user.user_photo})
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
 
@@ -93,6 +94,8 @@ def get_adoption_post (request, id):
     response.update({"username":username})
     response.update({"datails":post.details})
     response.update({"id":post.id})
+    response.update({"logo":post.user.user_photo})
+
     return Response(response, status= status.HTTP_200_OK)
 
 #@permission_classes([IsAuthenticated])
@@ -133,6 +136,8 @@ def adoption_filter (request):
             holder.update({"photo":photo})
             holder.update({"username":username})
             holder.update({"details":post.details})
+            holder.update({"logo":post.user.user_photo})
+
             response.append(holder)
     return Response(response, status= 200)
 
@@ -160,6 +165,8 @@ def adoption_post_search(request):
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
+        holder.update({"logo":post.user.user_photo})
+
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
 
@@ -215,6 +222,8 @@ def get_breeding_posts (request):
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
+        holder.update({"logo":post.user.user_photo})
+
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
 
@@ -236,6 +245,8 @@ def get_breeding_post (request, id):
     response.update({"username":username})
     response.update({"datails":post.details})
     response.update({"id":post.id})
+    response.update({"logo":post.user.user_photo})
+
     return Response(response, status= status.HTTP_200_OK)
 
 
@@ -274,6 +285,8 @@ def breeding_filter (request):
             holder.update({"photo":photo})
             holder.update({"username":username})
             holder.update({"details":post.details})
+            holder.update({"logo":post.user.user_photo})
+
             response.append(holder)
     return Response(response, status= 200)
 
@@ -302,5 +315,7 @@ def breeding_post_search(request):
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
+        holder.update({"logo":post.user.user_photo})
+
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
