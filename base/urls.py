@@ -74,4 +74,7 @@ urlpatterns = [
     path('doctor/add_post', views.doctor.add_post, name = 'add_post'),
     path('doctor/get_posts', views.doctor.get_posts, name = 'get_posts'),
 
+    ######
+    path('ai/vision/dog', views.vision_ai.dog_vision, name = 'dog-skin'),
+
 ]

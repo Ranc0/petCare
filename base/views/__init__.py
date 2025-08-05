@@ -7,3 +7,4 @@ from .homepage import *
 from .store import *
 from .homepage import *
 from .doctor import *
+from .vision_ai import *
