@@ -9,7 +9,7 @@ import io , os
 from dotenv import load_dotenv
 
 
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def dog_vision (request):
     load_dotenv()
@@ -26,8 +26,31 @@ def dog_vision (request):
     # print(data)
     result = ""
     for cls, conf in results:
-        result += f"Diagnosis: {cls}, Confidence: {conf * 100:.2f}% \n"
+        result += f"Diagnosis: {cls}, Confidence: {conf * 100:.2f}%\n"
 
     if result=="":
         result = "couldn't detect , make sure it's a close photo of your dog's infection"
+    return Response(result, status= status.HTTP_200_OK)
+
+# @permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def cat_vision (request):
+    load_dotenv()
+    user = request.user
+    key = os.getenv("API_KEY")
+    CLIENT = InferenceHTTPClient(
+        api_url="https://serverless.roboflow.com",
+        api_key=key
+    )
+    your_image = request.FILES.get('photo')
+    image = Image.open(io.BytesIO(your_image.read()))
+    data = CLIENT.infer(image, model_id="cat-skin-disease/3")
+    results = [(pred['class'], pred['confidence']) for pred in data['predictions']]
+    # print(data)
+    result = ""
+    for cls, conf in results:
+        result += f"Diagnosis: {cls}, Confidence: {conf * 100:.2f}%\n"
+
+    if result=="":
+        result = "couldn't detect , make sure it's a close photo of your cat's infection"
     return Response(result, status= status.HTTP_200_OK)
