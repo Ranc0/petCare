@@ -24,12 +24,10 @@ def dog_vision (request):
     data = CLIENT.infer(image, model_id="dog-skin-diseases/1")
     results = [(pred['class'], pred['confidence']) for pred in data['predictions']]
     # print(data)
-    result = ""
-    for cls, conf in results:
-        result += f"Diagnosis: {cls}, Confidence: {conf * 100:.2f}%\n"
-
-    if result=="":
-        result = "couldn't detect , make sure it's a close photo of your dog's infection"
+    result = [
+        {"diagnosis": cls, "confidence": round(conf * 100, 2)}
+        for cls, conf in results
+    ]
     return Response(result, status= status.HTTP_200_OK)
 
 # @permission_classes([IsAuthenticated])
@@ -47,10 +45,9 @@ def cat_vision (request):
     data = CLIENT.infer(image, model_id="cat-skin-disease/3")
     results = [(pred['class'], pred['confidence']) for pred in data['predictions']]
     # print(data)
-    result = ""
-    for cls, conf in results:
-        result += f"Diagnosis: {cls}, Confidence: {conf * 100:.2f}%\n"
+    result = [
+        {"diagnosis": cls, "confidence": round(conf * 100, 2)}
+        for cls, conf in results
+    ]
 
-    if result=="":
-        result = "couldn't detect , make sure it's a close photo of your cat's infection"
     return Response(result, status= status.HTTP_200_OK)
