@@ -8,3 +8,4 @@ from .store import *
 from .homepage import *
 from .doctor import *
 from .vision_ai import *
+from .ai import *
