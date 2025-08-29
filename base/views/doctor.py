@@ -8,6 +8,7 @@ from rest_framework import status
 from PIL import Image
 import os
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 User = get_user_model()
 @permission_classes([IsAuthenticated])
@@ -45,8 +46,11 @@ def update_certificate_photo(request, id):
         doctor.certificate_image = certificate_image
         doctor.save()
 
-        # Serialize the updated pet object
-        response = {"certificate_image": doctor.certificate_image.url if doctor.certificate_image else None}
+        # Serialize
+        image = None
+        if doctor.certificate_image :
+            image = f"{settings.DOMAIN}{doctor.certificate_image.url}"
+        response = {"certificate_image": image}
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):
@@ -71,7 +75,13 @@ def get_posts(request):
     holder = []
     posts = DoctorPost.objects.all()
     for post in posts:
-        post = DoctorPostSerializer(post).data
-        holder.append(post)
+        user_photo = None
+        if post.user.user_photo:
+            user_photo = f"{settings.DOMAIN}{post.user.user_photo}"
+        post_serialized = DoctorPostSerializer(post).data
+        post_serialized.update({"logo":user_photo})
+        post_serialized.update({"first_name" : post.user.first_name})
+        post_serialized.update({"last_name" : post.user.last_name})
+        holder.append(post_serialized)
     response = {"posts":holder}
     return Response(response, status= status.HTTP_200_OK)

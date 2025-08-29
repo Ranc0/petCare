@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..models import Store, Product
 from django.contrib.auth import get_user_model
+from django.conf import settings
+
 
 User = get_user_model()
 from ..serializers import StoreSerializer, ProductSerializer
@@ -24,13 +26,15 @@ def create_store (request):
         Store.objects.create(**obj)
         store = Store.objects.last()
         response = StoreSerializer(store).data
-        logo = store.logo.url if store.logo else None
+        logo = None
+        if store.logo:
+            logo = f"{settings.DOMAIN}{store.logo.url}"
         response.update({'logo':logo})
         response.update({'products':[]})
         return Response(response , status=status.HTTP_201_CREATED)
     else:
         return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
-    
+
 @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_store(request,id):
@@ -48,13 +52,17 @@ def delete_store(request,id):
 @api_view(['GET'])
 def get_store(request, id):
     store = get_object_or_404(Store, id = id)
-    logo = store.logo.url if store.logo else None
+    logo = None
+    if store.logo:
+        logo = f"{settings.DOMAIN}{store.logo.url}"
     user = store.user
     products = Product.objects.filter(user = user)
 
     holder = []
     for product in products:
-        photo = product.photo.url if product.photo else None
+        photo = None
+        if product.photo:
+            photo = f"{settings.DOMAIN}{product.photo.url}"
         product = ProductSerializer(product).data
         product.update({"photo":photo})
         holder.append(product)
@@ -87,7 +95,10 @@ def update_store_photo(request, id):
 
         # Serialize the updated pet object
         response = StoreSerializer(store).data
-        response.update({"logo": store.logo.url if store.logo else None})
+        logo = None
+        if store.logo:
+            logo = f"{settings.DOMAIN}{store.logo.url}"
+        response.update({"logo": logo})
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):

@@ -14,22 +14,22 @@ from django.conf import settings
 User = get_user_model()
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
-def add_pet (request):
+def add_pet(request):
     user = request.user
-    obj = PetSerializer(data = request.data, many = False)
-    if (obj.is_valid()):
-        obj = obj.data
-        obj.update({ "user" : user })
-        #photo = request.FILES.get('photo')
-        #obj.pop('photo')
-        pet = Pet.objects.create(**obj , photo = None)
-        if pet.type == 'cat':
-            vaccination = CatVaccination.objects.create(pet = pet)
-        else :
-            vaccination = DogVaccination.objects.create(pet = pet)
+    serializer = PetSerializer(data=request.data)
 
-        return Response(PetSerializer(pet).data , status=status.HTTP_201_CREATED )
-    return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
+    if serializer.is_valid():
+        pet = serializer.save(user=user, photo=None)  # Let DRF handle creation
+
+        if pet.type == 'cat':
+            CatVaccination.objects.create(pet=pet)
+        else:
+            DogVaccination.objects.create(pet=pet)
+
+        return Response(PetSerializer(pet).data, status=status.HTTP_201_CREATED)
+
+    return Response({"message": "form is not valid"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @permission_classes([IsAuthenticated])
