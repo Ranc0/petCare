@@ -172,17 +172,17 @@ def doTheJob(sample: str) -> Dict:
     for symptom, present in symptom_result.items():
         if present == 1:  # use equality, not identity
             print(symptom)
-    expected = list(SVM_MODEL.feature_names_in_)  # if trained from pandas DataFrame
-    current = list(symptom_result.keys())
+    # expected = list(SVM_MODEL.feature_names_in_)  # if trained from pandas DataFrame
+    # current = list(symptom_result.keys())
 
-    print("Expected feature count:", len(expected))
-    print("Current  feature count:", len(current))
+    # print("Expected feature count:", len(expected))
+    # print("Current  feature count:", len(current))
 
-    missing = set(expected) - set(current)
-    extra   = set(current)  - set(expected)
+    # missing = set(expected) - set(current)
+    # extra   = set(current)  - set(expected)
 
-    print("Missing keys:", missing)
-    print("Extra keys:  ", extra)
+    # print("Missing keys:", missing)
+    # print("Extra keys:  ", extra)
 
     vec = np.array([symptom_result[x] for x in symptom_result]).reshape(1, -1)
    
