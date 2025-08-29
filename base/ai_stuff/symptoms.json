@@ -1,0 +1,173 @@
+{
+  "synonym_index": {
+    "increased thirst": ["drinking a lot", "very thirsty", "drinking more than usual", "polydipsia", "always at the water bowl", "drinks a lot", "عطش", "عطش شديد"],
+    "frequent urination": ["peeing a lot", "urinating often", "many trips outside", "constant urination", "pees a lot", "polyuria", "تبول متكرر"],
+    "weight loss": ["losing weight", "looks skinny", "dropped weight", "lost weight", "نحف", "خسارة وزن"],
+    "increased appetite": ["always hungry", "eating more than usual", "ravenous", "hungry all the time", "شهيته عالية"],
+    "restlessness": ["can't settle", "jittery", "pacing a lot", "hyperactivity", "agitated", "uneasy"],
+    "vomiting": ["throwing up", "puking", "bringing up food", "emesis", "قيء", "استفراغ"],
+    "lethargy": ["sleeping more", "less active", "sluggish", "tired", "low energy", "خمول"],
+    "fever": ["feverish", "hot to touch", "high temperature", "high temp", "temperature", "حرارة"],
+    "swollen lymph nodes": ["big glands", "enlarged glands", "lumps under jaw", "swollen nodes"],
+    "jaundice": ["yellow gums", "yellow eyes", "icterus", "يرقان", "اصفرار"],
+    "nasal discharge": ["runny nose", "snot", "mucus from nose", "سيلان أنف"],
+    "eye discharge": ["watery eyes", "eye gunk", "goopy eyes", "tearing"],
+    "coughing": ["coughs", "hacking", "dry cough", "cough fits", "سعال", "كحة"],
+    "loss of appetite": ["not eating", "refusing food", "off food", "won’t eat", "anorexia", "فقدان شهية"],
+    "itchy skin": ["itching", "scratching", "pruritus", "حكة"],
+    "hair loss": ["bald patches", "fur missing", "alopecia"],
+    "red patches": ["red or inflamed skin", "inflamed patches", "skin redness"],
+    "scabs": ["crusts", "scabby skin", "crusting"],
+    "bad breath": ["halitosis", "stinky breath", "smelly mouth"],
+    "drooling": ["salivating", "excess saliva", "foaming"],
+    "difficulty eating": ["chews on one side", "drops food", "pain when eating", "won’t chew kibble"],
+    "abdominal pain": ["tummy pain", "sore belly", "abdomen tender", "hunched posture", "prayer position", "ألم بطن"],
+    "aggression": ["more aggressive", "attacks", "biting"],
+    "difficulty swallowing": ["can’t swallow", "chokes on water", "gagging"],
+    "paralysis": ["can’t move well", "paralyzed", "hind limb paralysis"],
+    "dehydration": ["skin tenting", "dry gums", "very thirsty", "جفاف"],
+    "bleeding": ["hemorrhage", "bleeds", "unexplained bleeding"],
+    "bloody diarrhea": ["red stool", "blood in stool", "hematochezia"],
+    "stiffness": ["rigid muscles", "stiff gait", "difficulty moving"],
+    "muscle spasms": ["involuntary contractions", "muscle rigidity"],
+    "labored breathing": ["hard to breathe", "shortness of breath", "dyspnea", "trouble breathing", "صعوبة تنفس"],
+    "exercise intolerance": ["tires easily", "reduced stamina", "can’t keep up"],
+    "ear odor": ["smelly ears", "foul ear smell"],
+    "ear redness": ["red ears", "inflamed ears"],
+    "ear discharge": ["pus in ears", "ear gunk", "ear drainage"],
+    "ear swelling": ["swollen ear flap", "puffy ear"],
+    "lumps": ["mass", "tumor", "growth"],
+    "muscle tenderness": ["sore muscles", "painful muscles"],
+    "sneezing": ["sneeze", "sneezes", "sneezing fits", "عطس"],
+    "swollen belly": ["abdominal distension", "ascites", "fluid belly"],
+    "anemia": ["low red cells", "pale gums"],
+    "head shaking": ["shakes head", "head tilt and shake", "ear shaking"],
+    "limping": ["lame", "favoring a leg", "uneven gait"],
+    "difficulty rising": ["slow to get up", "struggles to stand"],
+    "excess body fat": ["overweight", "obese"],
+    "difficulty moving": ["reduced mobility", "slow movement"],
+    "panting": ["heavy breathing", "rapid breathing"],
+    "circular hair loss patches": ["ring-shaped bald spots", "ring lesions"],
+    "scaly skin": ["flaky skin", "dandruff-like scales"],
+    "seizures": ["fits", "convulsions", "tremors"],
+    "diarrhea": ["diarrhoea","loose stools","frequent watery stools","runs","bowel looseness"]
+  },
+  "diseases": {
+    "rabies": ["restlessness", "aggression", "drooling", "difficulty swallowing", "paralysis"],
+    "canine_distemper": ["fever", "nasal discharge", "eye discharge", "coughing", "vomiting", "diarrhea", "seizures", "paralysis"],
+    "canine_parvovirus": ["vomiting", "bloody diarrhea", "lethargy", "loss of appetite", "fever", "dehydration"],
+    "infectious_hepatitis": ["jaundice", "vomiting", "abdominal pain", "diarrhea", "lethargy", "increased thirst"],
+    "tetanus": ["stiffness", "muscle spasms", "difficulty swallowing", "paralysis"],
+    "chronic_kidney_disease": ["increased thirst", "frequent urination", "weight loss", "vomiting", "lethargy", "bad breath"],
+    "diabetes_mellitus": ["increased thirst", "frequent urination", "weight loss", "increased appetite", "lethargy"],
+    "gastrointestinal_disease": ["vomiting", "diarrhea", "abdominal pain", "loss of appetite", "dehydration"],
+    "allergies": ["itchy skin", "hair loss", "red patches", "scabs", "ear redness", "ear discharge", "ear odor"],
+    "dental_disease": ["bad breath", "drooling", "difficulty eating", "loss of appetite"],
+    "cancer": ["lumps", "weight loss", "lethargy", "loss of appetite", "bleeding", "swollen lymph nodes"],
+    "leptospirosis": ["lethargy", "vomiting", "diarrhea", "jaundice", "fever", "muscle tenderness", "increased thirst"],
+    "kennel_cough": ["coughing", "sneezing", "nasal discharge", "lethargy", "loss of appetite"],
+    "heartworm_disease": ["coughing", "exercise intolerance", "lethargy", "weight loss", "labored breathing", "swollen belly"],
+    "tick_fever": ["fever", "lethargy", "anemia", "loss of appetite", "swollen lymph nodes", "weight loss", "bleeding"],
+    "ear_infection": ["ear odor", "ear redness", "ear discharge", "ear swelling", "head shaking"],
+    "arthritis": ["limping", "stiffness", "difficulty rising", "lethargy"],
+    "obesity": ["excess body fat", "difficulty moving", "exercise intolerance", "panting", "lethargy"],
+    "ringworm": ["circular hair loss patches", "scaly skin", "itchy skin", "red patches"]
+  },
+  "disease_info": {
+    "rabies": {
+      "symptoms": ["Restlessness", "Aggression", "Drooling", "Difficulty swallowing", "Paralysis"],
+      "causes": ["Rabies virus transmitted via bite or saliva contamination of wounds"],
+      "care_tips": ["Immediate isolation and notification of authorities", "Post-exposure protocols for humans", "Prevention via vaccination"]
+    },
+    "canine_distemper": {
+      "symptoms": ["Fever", "Nasal discharge", "Eye discharge", "Coughing", "Vomiting", "Diarrhea", "Seizures", "Paralysis"],
+      "causes": ["Canine distemper virus (aerosol transmission)", "Systemic infection with respiratory, gastrointestinal, and neurologic involvement"],
+      "care_tips": ["Strict isolation", "Supportive care (fluids, antiemetics, nutrition)", "Prevent with vaccination"]
+    },
+    "canine_parvovirus": {
+      "symptoms": ["Vomiting", "Bloody diarrhea", "Lethargy", "Loss of appetite", "Fever", "Dehydration"],
+      "causes": ["Canine parvovirus type 2 (fecal–oral transmission)", "Intestinal crypt necrosis leading to hemorrhagic gastroenteritis"],
+      "care_tips": ["Aggressive IV fluids and electrolytes", "Antiemetics and antibiotics as indicated", "Isolation and thorough environmental disinfection", "Vaccination for prevention"]
+    },
+    "infectious_hepatitis": {
+      "symptoms": ["Jaundice", "Vomiting", "Abdominal pain", "Diarrhea", "Lethargy", "Increased thirst"],
+      "causes": ["Canine adenovirus type 1 (CAV-1)", "Hepatic inflammation and potential coagulopathy"],
+      "care_tips": ["Supportive care (fluids, hepatoprotectants)", "Manage nausea and pain", "Monitor coagulation and liver values", "Vaccination for prevention"]
+    },
+    "tetanus": {
+      "symptoms": ["Stiffness", "Muscle spasms", "Difficulty swallowing", "Paralysis"],
+      "causes": ["Clostridium tetani neurotoxin from contaminated wounds"],
+      "care_tips": ["Wound debridement", "Antitoxin when indicated", "Sedatives and muscle relaxants", "Quiet, low-stimulus environment", "Antibiotics per veterinarian"]
+    },
+    "chronic_kidney_disease": {
+      "symptoms": ["Increased thirst", "Frequent urination", "Weight loss", "Vomiting", "Lethargy", "Bad breath"],
+      "causes": ["Chronic nephropathy (degenerative, congenital, or toxic etiologies)"],
+      "care_tips": ["Prescription renal diet", "Hydration support (subcutaneous fluids as prescribed)", "Control hypertension and proteinuria", "Antiemetics and phosphate binders as needed", "Regular bloodwork monitoring"]
+    },
+    "diabetes_mellitus": {
+      "symptoms": ["Increased thirst", "Frequent urination", "Weight loss", "Increased appetite", "Lethargy"],
+      "causes": ["Insulin deficiency or resistance (pancreatic beta-cell dysfunction)"],
+      "care_tips": ["Insulin therapy as prescribed", "Consistent diet and feeding schedule", "Monitor glucose and ketones", "Weight management and exercise plan"]
+    },
+    "gastrointestinal_disease": {
+      "symptoms": ["Vomiting", "Diarrhea", "Abdominal pain", "Loss of appetite", "Dehydration"],
+      "causes": ["Dietary indiscretion", "Infectious or parasitic gastroenteritis", "Pancreatitis or food intolerance"],
+      "care_tips": ["Bland diet trial and antiemetics", "Fluid therapy for dehydration", "Stool exam and deworming if indicated", "Escalate diagnostics if persistent"]
+    },
+    "allergies": {
+      "symptoms": ["Itchy skin", "Hair loss", "Red patches", "Scabs", "Ear redness", "Ear discharge", "Ear odor"],
+      "causes": ["Flea allergy dermatitis", "Atopic dermatitis (environmental)", "Food allergy"],
+      "care_tips": ["Strict flea prevention and environmental control", "Topical therapy and medicated baths", "Antipruritics (oclacitinib, lokivetmab) or steroids per vet", "Diet trial for suspected food allergy"]
+    },
+    "dental_disease": {
+      "symptoms": ["Bad breath", "Drooling", "Difficulty eating", "Loss of appetite"],
+      "causes": ["Plaque and tartar accumulation", "Gingivitis and periodontitis", "Tooth resorption or fractures"],
+      "care_tips": ["Professional dental cleaning and extractions as needed", "Daily tooth brushing", "Dental diets or chews"]
+    },
+    "cancer": {
+      "symptoms": ["Lumps", "Weight loss", "Lethargy", "Loss of appetite", "Bleeding", "Swollen lymph nodes"],
+      "causes": ["Neoplastic processes (e.g., lymphoma, mast cell tumor, sarcoma)", "Age and breed predispositions"],
+      "care_tips": ["Oncology referral for staging", "Surgery, chemotherapy, or radiation as indicated", "Pain management and supportive care"]
+    },
+    "leptospirosis": {
+      "symptoms": ["Lethargy", "Vomiting", "Diarrhea", "Jaundice", "Fever", "Muscle tenderness", "Increased thirst"],
+      "causes": ["Leptospira spp. exposure from contaminated water or wildlife urine"],
+      "care_tips": ["Antibiotic therapy (e.g., doxycycline) per vet", "Aggressive fluid and renal/hepatic support", "Isolation and zoonotic precautions", "Vaccination for at-risk dogs"]
+    },
+    "kennel_cough": {
+      "symptoms": ["Coughing", "Sneezing", "Nasal discharge", "Lethargy", "Loss of appetite"],
+      "causes": ["Canine infectious respiratory disease complex (e.g., Bordetella, parainfluenza, adenovirus)"],
+      "care_tips": ["Rest and cough control as prescribed", "Antibiotics if bacterial involvement", "Isolation to prevent spread", "Vaccination to reduce risk"]
+    },
+    "heartworm_disease": {
+      "symptoms": ["Coughing", "Exercise intolerance", "Lethargy", "Weight loss", "Labored breathing", "Swollen belly"],
+      "causes": ["Dirofilaria immitis transmitted by mosquitoes", "Pulmonary vascular and cardiac burden"],
+      "care_tips": ["Stage disease and follow adulticide protocol", "Doxycycline for Wolbachia as directed", "Strict exercise restriction", "Monthly prevention after treatment plan"]
+    },
+    "tick_fever": {
+      "symptoms": ["Fever", "Lethargy", "Anemia", "Loss of appetite", "Swollen lymph nodes", "Weight loss", "Bleeding"],
+      "causes": ["Tick-borne pathogens (e.g., Ehrlichia canis)"],
+      "care_tips": ["Doxycycline therapy as prescribed", "Tick control and environmental management", "Supportive care; transfusion if severe anemia"]
+    },
+    "ear_infection": {
+      "symptoms": ["Ear odor", "Ear redness", "Ear discharge", "Ear swelling", "Head shaking"],
+      "causes": ["Otitis externa from yeast or bacteria", "Underlying allergy or moisture buildup"],
+      "care_tips": ["Cytology-guided topical therapy", "Ear cleaning regimen", "Treat underlying allergies or predisposing factors"]
+    },
+    "arthritis": {
+      "symptoms": ["Limping", "Stiffness", "Difficulty rising", "Lethargy"],
+      "causes": ["Osteoarthritis from age, joint dysplasia, prior injury", "Obesity as a risk factor"],
+      "care_tips": ["Vet-prescribed NSAIDs and pain control", "Weight management", "Joint supplements and physical therapy", "Low-impact exercise"]
+    },
+    "obesity": {
+      "symptoms": ["Excess body fat", "Difficulty moving", "Exercise intolerance", "Panting", "Lethargy"],
+      "causes": ["Excess caloric intake and low activity", "Endocrine disease predisposition in some cases"],
+      "care_tips": ["Calorie-restricted diet and measured feeding", "Increased daily activity", "Regular weigh-ins and body condition scoring"]
+    },
+    "ringworm": {
+      "symptoms": ["Circular hair loss patches", "Scaly skin", "Itchy skin", "Red patches"],
+      "causes": ["Dermatophyte infection (e.g., Microsporum canis)"],
+      "care_tips": ["Topical and systemic antifungals as prescribed", "Environmental decontamination", "Limit contact to prevent spread"]
+    }
+  }
+}

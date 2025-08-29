@@ -78,5 +78,6 @@ urlpatterns = [
     path('ai/vision/dog', views.vision_ai.dog_vision, name = 'dog-skin'),
     path('ai/vision/cat', views.vision_ai.cat_vision, name = 'cat-skin'),
     path('ai/dog', views.ai.dog, name = 'dog'),
+    path('ai/cat', views.ai.cat, name = 'cat'),
 
 ]

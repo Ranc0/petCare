@@ -18,7 +18,7 @@ SYNONYM_INDEX = ONTOLOGY["synonym_index"]
 DISEASE_MAP = ONTOLOGY["diseases"]
 DISEASE_INFO = ONTOLOGY["disease_info"]
 
-SVM_MODEL_PATH = os.path.join(BASE_DIR, "dog_disease_svm_model.pkl")
+SVM_MODEL_PATH = os.path.join(BASE_DIR, "cat_disease_svm_model.pkl")
 LABEL_ENCODER_PATH = os.path.join(BASE_DIR, "disease_label_encoder.pkl")
 
 SVM_MODEL = joblib.load(SVM_MODEL_PATH)
@@ -166,24 +166,12 @@ def match_diseases(symptom_binary: Dict[str, int], disease_map: Dict[str, List[s
     }
 
 # ---------- Main callable ----------
-def doTheJob(sample: str) -> Dict:
+def fun(sample: str) -> Dict:
     symptom_result = extract_symptom_binary(sample, SYNONYM_INDEX)
     # disease_result = match_diseases(symptom_result, DISEASE_MAP)
     for symptom, present in symptom_result.items():
         if present == 1:  # use equality, not identity
             print(symptom)
-    expected = list(SVM_MODEL.feature_names_in_)  # if trained from pandas DataFrame
-    current = list(symptom_result.keys())
-
-    print("Expected feature count:", len(expected))
-    print("Current  feature count:", len(current))
-
-    missing = set(expected) - set(current)
-    extra   = set(current)  - set(expected)
-
-    print("Missing keys:", missing)
-    print("Extra keys:  ", extra)
-
     vec = np.array([symptom_result[x] for x in symptom_result]).reshape(1, -1)
    
 

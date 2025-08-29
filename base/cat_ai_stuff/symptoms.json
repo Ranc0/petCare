@@ -1,0 +1,265 @@
+{
+  "synonym_index": {
+    "increased thirst": ["drinking a lot", "drinks too much", "very thirsty", "drinking more than usual", "always at the water bowl", "polydipsia", "excesive thirst", "drinkin alot", "drinks a lot", "drinking more water", "visits water bowl often", "water bowl empties fast","thirsty", "عطش شديد", "عطش"],
+    "frequent urination": ["peeing a lot", "urinating often", "many trips to the litter box", "constant urination", "pees a lot", "polyuria", "تبول متكرر", "urinates a lot", "goes to litter box frequently", "large pee clumps", "pee often", "many trips to box", "small amounts frequently"],
+    "weight loss": ["losing weight", "getting thinner", "looks skinny", "dropped weight", "loosing weight", "خاسس", "نحف", "lost weight", "drops weight", "thinner than before", "thin now", "wasting", "thin", "خسارة وزن", "slimmed down"],
+    "increased appetite": ["always hungry", "eating more than usual", "ravenous", "hungry all the time", "شهيته مفتوحة", "wants food constantly", "eating more", "wolfing down food", "شهيته عالية"],
+    "restlessness": ["can't settle", "jittery", "pacing a lot", "hyper", "more active than usual", "restlessness or hyperactivity", "agitated", "uneasy", "can’t settle"],
+    "vomiting": ["throwing up", "puking", "bringing up food", "barfing", "emesis", "استفراغ", "قيء", "throws up", "brings up food"],
+    "poor coat condition": ["rough coat", "unkempt fur", "greasy fur", "messy coat", "matted"],
+    "lethargy": ["sleeping more", "less active", "sluggish", "tired", "خمول", "low energy", "weak", "sleepy"],
+    "fever": ["feverish", "hot to touch", "high temperature", "حرارة", "high temp", "temperature", "warm ears"],
+    "swollen lymph nodes": ["big glands", "lumps under jaw", "swollen nodes"],
+    "oral inflammation": ["bad mouth", "sore gums", "mouth ulcers", "stomatitis", "painful mouth", "dental disease"],
+    "recurrent infections": ["keeps getting sick", "frequent infections", "persistent illness", "often sick", "doesn’t recover fully"],
+    "pale gums": ["white gums", "pale mouth", "light-colored gums"],
+    "sneezing": ["sneeze", "sneezes", "sneezing fits", "عطس"],
+    "nasal discharge": ["runny nose", "snot", "mucus from nose", "stuffy nose", "سيلان أنف"],
+    "eye discharge": ["watery eyes", "eye gunk", "goopy eyes", "tearing", "دمع"],
+    "coughing": ["coughs", "hacking", "dry cough", "سعال", "كحة", "cough", "cough fits"],
+    "loss of appetite": ["not eating", "refusing food", "off food", "anorexia", "فقدان شهية", "won’t eat"],
+    "straining to urinate": ["difficulty peeing", "takes long to pee", "strains in litter box", "tenesmus"],
+    "blood in urine": ["pink urine", "red urine", "bloody pee", "hematuria", "دم في البول"],
+    "urinating outside litter box": ["peeing on floor", "urinating on bed", "avoids litter", "marking-like pee"],
+    "vocalizing in pain": ["crying while peeing", "meows when urinating", "whining in litter box"],
+    "excessive genital licking": ["licking private area", "overgrooming groin", "licks genitals a lot"],
+    "wheezing": ["whistling sound", "noisy breathing", "wheezy"],
+    "difficulty breathing": ["hard to breathe", "labored breathing", "dyspnea", "صعوبة تنفس", "trouble breathing", "short of breath"],
+    "open-mouth breathing": ["panting", "mouth open to breathe"],
+    "excessive scratching": ["itching a lot", "scratching nonstop", "pruritus", "حكة"],
+    "hair loss": ["bald patches", "fur missing", "alopecia"],
+    "red or inflamed skin": ["red skin", "irritated skin", "inflamed patches"],
+    "scabs": ["crusts", "scabby skin", "scabbed sores"],
+    "flea dirt or fleas seen": ["black specks", "flea dirt", "saw fleas"],
+    "bad breath": ["halitosis", "stinky breath", "smelly mouth"],
+    "drooling": ["salivating", "excess saliva", "drools", "excessive drooling", "foaming", "drools a lot"],
+    "difficulty eating": ["chews on one side", "drops food", "pain when eating", "won’t chew kibble"],
+    "pawing at mouth": ["scratching mouth", "rubs mouth", "touches mouth often"],
+    "diarrhea": ["runny stool", "loose stools", "watery poop", "soft stool", "diarrhea","diarreha", "diarrhoea", "إسهال", "ishal"],
+    "abdominal pain": ["tummy pain", "hunched", "sore belly", "abdomen tender", "bloated belly", "abdominal discomfort", "hunched posture", "prayer position"],
+    "jaundice": ["yellow gums", "yellow eyes", "icterus", "اصفرار"],
+    "behavior changes": ["acting strange", "unusual behavior", "not himself", "fearless or hiding"],
+    "aggression": ["more aggressive", "attacks", "biting"],
+    "difficulty swallowing": ["can’t swallow", "chokes on water", "gagging"],
+    "paralysis": ["weak hind legs", "can’t move well", "paralyzed"],
+    "dehydration": ["skin tenting", "dry gums", "very thirsty"]
+  },
+  "diseases": {
+    "diabetes_mellitus": ["increased thirst", "frequent urination", "weight loss", "increased appetite"],
+    "hyperthyroidism": ["increased appetite", "weight loss", "restlessness", "vomiting", "increased thirst"],
+    "chronic_kidney_disease": ["increased thirst", "frequent urination", "weight loss", "poor coat condition", "lethargy", "vomiting"],
+    "feline_immunodeficiency_virus": ["fever", "swollen lymph nodes", "oral inflammation", "recurrent infections", "weight loss"],
+    "feline_leukemia_virus": ["weight loss", "lethargy", "recurrent infections", "fever", "pale gums"],
+    "upper_respiratory_infection": ["sneezing", "nasal discharge", "eye discharge", "coughing", "loss of appetite", "fever"],
+    "feline_lower_urinary_tract_disease": ["straining to urinate", "frequent urination", "blood in urine", "urinating outside litter box", "vocalizing in pain", "excessive genital licking"],
+    "feline_asthma": ["coughing", "wheezing", "difficulty breathing", "open-mouth breathing", "lethargy"],
+    "flea_allergy_dermatitis": ["excessive scratching", "hair loss", "red or inflamed skin", "scabs", "restlessness", "flea dirt or fleas seen"],
+    "dental_disease": ["bad breath", "drooling", "difficulty eating", "pawing at mouth", "weight loss"],
+    "gastrointestinal_upset": ["vomiting", "diarrhea", "loss of appetite", "lethargy", "abdominal pain"],
+    "heartworm_disease": ["coughing", "difficulty breathing", "vomiting", "lethargy", "weight loss"],
+    "toxoplasmosis": ["fever", "loss of appetite", "lethargy", "difficulty breathing", "jaundice"],
+    "rabies": ["behavior changes", "aggression", "drooling", "difficulty swallowing", "paralysis"],
+    "pancreatitis": ["vomiting", "loss of appetite", "abdominal pain", "lethargy", "dehydration"]
+  },
+  "disease_info" : {
+    "diabetes_mellitus": {
+        "symptoms": [
+            "Excessive thirst and urination",
+            "Weight loss despite increased appetite",
+            "Lethargy"
+        ],
+        "causes": [
+            "Insulin deficiency or resistance",
+            "Obesity",
+            "Pancreatic dysfunction"
+        ],
+        "care_tips": [
+            "Administer insulin as prescribed",
+            "Feed a low-carb, high-protein diet",
+            "Monitor blood glucose regularly"
+        ]
+    },
+    "hyperthyroidism": {
+        "symptoms": [
+            "Weight loss with increased appetite",
+            "Hyperactivity or restlessness",
+            "Vomiting and diarrhea"
+        ],
+        "causes": [
+            "Benign thyroid gland tumor",
+            "Excessive thyroid hormone production",
+            "Age-related gland changes"
+        ],
+        "care_tips": [
+            "Use anti-thyroid medication or iodine-restricted diet",
+            "Consider radioactive iodine therapy or surgery",
+            "Monitor heart rate and blood pressure"
+        ]
+    },
+    "chronic_kidney_disease": {
+        "symptoms": [
+            "Increased thirst and urination",
+            "Weight loss and poor appetite",
+            "Vomiting and dehydration"
+        ],
+        "causes": [
+            "Age-related kidney degeneration",
+            "Polycystic kidney disease",
+            "Toxin or infection exposure"
+        ],
+        "care_tips": [
+            "Provide prescription renal diet",
+            "Ensure hydration and offer subcutaneous fluids",
+            "Monitor bloodwork and blood pressure"
+        ]
+    },
+    "feline_immunodeficiency_virus": {
+        "symptoms": [
+            "Recurring infections",
+            "Weight loss",
+            "Lethargy and fever"
+        ],
+        "causes": [
+            "Transmission through bite wounds",
+            "Weakened immune system",
+            "Chronic viral infection"
+        ],
+        "care_tips": [
+            "Keep cat indoors to prevent exposure",
+            "Provide supportive care and regular vet checkups",
+            "Manage secondary infections promptly"
+        ]
+    },
+    "feline_leukemia_virus": {
+        "symptoms": [
+            "Pale gums",
+            "Persistent fever",
+            "Weight loss and diarrhea"
+        ],
+        "causes": [
+            "Viral transmission via saliva or urine",
+            "Immune suppression",
+            "Bone marrow dysfunction"
+        ],
+        "care_tips": [
+            "Avoid contact with infected cats",
+            "Supportive care and immune boosters",
+            "Vaccinate at-risk cats"
+        ]
+    },
+    "upper_respiratory_infection": {
+        "symptoms": [
+            "Sneezing and nasal discharge",
+            "Coughing",
+            "Loss of appetite"
+        ],
+        "causes": [
+            "Viral or bacterial infection",
+            "Exposure to infected cats",
+            "Stress or overcrowding"
+        ],
+        "care_tips": [
+            "Isolate infected cats",
+            "Use antibiotics if bacterial",
+            "Ensure hydration and warmth"
+        ]
+    },
+    "feline_lower_urinary_tract_disease": {
+        "symptoms": [
+            "Straining to urinate",
+            "Blood in urine",
+            "Frequent litter box visits"
+        ],
+        "causes": [
+            "Urinary crystals or stones",
+            "Stress",
+            "Bladder inflammation"
+        ],
+        "care_tips": [
+            "Feed urinary health diet",
+            "Reduce stress in environment",
+            "Monitor for blockage and seek emergency care if needed"
+        ]
+    },
+    "feline_asthma": {
+        "symptoms": [
+            "Wheezing and coughing",
+            "Labored breathing",
+            "Lethargy"
+        ],
+        "causes": [
+            "Allergic reaction",
+            "Environmental irritants",
+            "Genetic predisposition"
+        ],
+        "care_tips": [
+            "Use inhaled corticosteroids",
+            "Avoid smoke and dust",
+            "Monitor respiratory rate"
+        ]
+    },
+    "flea_allergy_dermatitis": {
+        "symptoms": [
+            "Intense itching and scratching",
+            "Hair loss",
+            "Skin redness and scabs"
+        ],
+        "causes": [
+            "Allergic reaction to flea saliva",
+            "Flea infestation",
+            "Poor flea control"
+        ],
+        "care_tips": [
+            "Use flea prevention treatments",
+            "Treat environment for fleas",
+            "Apply soothing topical medications"
+        ]
+    },
+    "dental_disease": {
+        "symptoms": [
+            "Bad breath",
+            "Drooling",
+            "Difficulty eating"
+        ],
+        "causes": [
+            "Plaque and tartar buildup",
+            "Gum infection",
+            "Tooth decay"
+        ],
+        "care_tips": [
+            "Brush cat’s teeth regularly",
+            "Schedule dental cleanings",
+            "Feed dental-friendly food"
+        ]
+    },
+    "gastrointestinal_upset": {
+        "symptoms": [
+            "Vomiting",
+            "Diarrhea",
+            "Loss of appetite"
+        ],
+        "causes": [
+            "Dietary indiscretion",
+            "Infection or parasites",
+            "Food intolerance"
+        ],
+        "care_tips": [
+            "Feed bland diet temporarily",
+            "Use probiotics",
+            "Hydrate and monitor stool"
+        ]
+    },
+    "heartworm_disease": {
+        "symptoms": [
+            "Coughing",
+            "Lethargy",
+            "Weight loss"
+        ],
+        "causes": [
+            "Mosquito-transmitted parasite",
+            "Larval migration to lungs",
+            "Immune response to worms"
+        ]
+      }
+    }
+  }

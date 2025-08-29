@@ -7,12 +7,20 @@ from rest_framework import status
 import io , os
 
 from ..ai_stuff.smart_nlp import doTheJob
+from ..cat_ai_stuff.nlp import fun
 
 # @permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def dog (request):
     message = request.data['message']
     result_text = doTheJob(message)
+    return Response(result_text, status= status.HTTP_200_OK)
+
+# @permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def cat (request):
+    message = request.data['message']
+    result_text = fun(message)
     return Response(result_text, status= status.HTTP_200_OK)
    
    
