@@ -67,15 +67,15 @@ def generate_and_send_otp(user):
     cache_key = f'otp_{user.id}'
     cache.set(cache_key, otp, timeout=300)
 
-    # if settings.SEND_OTP_EMAIL:
-    #     send_mail(
-    #         'Your OTP Code',
-    #         f'Your verification code is: {otp}',
-    #         'PertCareApp',
-    #         [user.email],
-    #         fail_silently=False,
-    #     )
-        #send_otp_email(email, otp)
+    if settings.SEND_OTP_EMAIL:
+        send_mail(
+            'Your OTP Code',
+            f'Your verification code is: {otp}',
+            'PertCareApp',
+            [user.email],
+            fail_silently=False,
+        )
+        #send_otp_email(user.email, otp)
     return otp
 
 def handle_otp_verification(user_id, submitted_otp, request_status):
