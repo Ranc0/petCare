@@ -20,6 +20,9 @@ def add_adoption_post (request , id):
     pet = Pet.objects.filter(id=id)
     if not pet :
         return Response({"message":"no such id"}, status=status.HTTP_404_NOT_FOUND)
+    post_test = AdoptionPost.objects.filter(pet_id = id)
+    if post_test:
+        return Response({"message":"pet adoption post already exists"}, status=status.HTTP_400_BAD_REQUEST)
     pet = pet[0]
     details = request.data["details"]
     post = AdoptionPost.objects.create(pet = pet , user = user , details = details)
@@ -65,12 +68,15 @@ def get_adoption_posts (request):
         photo = None
         if pet.photo :
             photo = f"{settings.DOMAIN}{pet.photo.url}"
-        
+        user_photo = None
+        if post.user.user_photo:
+            user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
+
         holder.update({"photo":photo})
         holder.update({"username":username})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
-        holder.update({"logo":post.user.user_photo})
+        holder.update({"logo":user_photo})
         holder.update({"created_at":post.created_at})
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
@@ -108,7 +114,7 @@ def adoption_filter (request):
         'breed': request.data.get('breed',None),
         'gender': request.data.get('gender',None),
     }
-    birth_date = request.data.get('birth_date',None)
+    birth_date = request.data.get('age',None)
     country = request.data.get('country',None)
     if country:
         filter_params['user__country'] = country
@@ -117,12 +123,12 @@ def adoption_filter (request):
             birth_date_obj = datetime.datetime.strptime(birth_date, '%Y-%m-%d').date()
             #print(birth_date_obj)
             #print( Pet.objects.get(id=9).birth_date)
-            filter_params['birth_date__lte'] = birth_date_obj
+            filter_params['birth_date__gte'] = birth_date_obj
         except ValueError:
             return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
 
     filter_params = {key: value for key, value in filter_params.items() if value is not None}
-    pets = Pet.objects.filter(**filter_params)
+    pets = Pet.objects.filter(**filter_params).order_by('birth_date')
     response = []
     for pet in pets:
         post = AdoptionPost.objects.filter(pet_id = pet.id)
@@ -183,6 +189,9 @@ def add_breeding_post (request , id):
     pet = Pet.objects.filter(id=id)
     if not pet :
         return Response({"message":"no such id"}, status=status.HTTP_404_NOT_FOUND)
+    post_test = BreedingPost.objects.filter(pet_id = id)
+    if post_test:
+        return Response({"message":"pet breeding post already exists"}, status=status.HTTP_400_BAD_REQUEST)
     pet = pet[0]
     details = request.data["details"]
     post = BreedingPost.objects.create(pet = pet , user = user , details = details)
@@ -263,19 +272,19 @@ def breeding_filter (request):
         'breed': request.data.get('breed',None),
         'gender': request.data.get('gender',None),
     }
-    birth_date = request.data.get('birth_date',None)
+    birth_date = request.data.get('age',None)
     country = request.data.get('country',None)
     if country:
         filter_params['user__country'] = country
     if birth_date:
         try:
             birth_date_obj = datetime.datetime.strptime(birth_date, '%Y-%m-%d').date()
-            filter_params['birth_date__lte'] = birth_date_obj
+            filter_params['birth_date__gte'] = birth_date_obj
         except ValueError:
             return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
 
     filter_params = {key: value for key, value in filter_params.items() if value is not None}
-    pets = Pet.objects.filter(**filter_params)
+    pets = Pet.objects.filter(**filter_params).order_by('birth_date')
     response = []
     for pet in pets:
         post = BreedingPost.objects.filter(pet_id = pet.id)

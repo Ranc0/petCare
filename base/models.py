@@ -120,6 +120,7 @@ class Store(models.Model):
 class Doctor(models.Model):
     certificate_image = models.ImageField(null = True, blank  =True, upload_to = 'images/')
     experience = models.IntegerField(default=0)
+    details = models.CharField(max_length=700, default = "")
     user = models.OneToOneField(CustomUser, on_delete= models.CASCADE)
 
     def delete(self, *args, **kwargs):

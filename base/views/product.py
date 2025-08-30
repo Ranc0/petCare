@@ -62,6 +62,7 @@ def get_products(request):
     products = Product.objects.all()
     response = []
 
+
     for product in products:
         holder = {}
         photo = None
@@ -90,6 +91,7 @@ def get_product (request, id):
     response.update({"photo":photo})
     response.update({"store_name":store.store_name})
     response.update({"logo":logo})
+    response.update({"country":product.user.country})
     return Response(response, status= status.HTTP_200_OK)
 
 #@permission_classes([IsAuthenticated])

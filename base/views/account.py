@@ -53,8 +53,8 @@ from django.core.mail import send_mail
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from ..models import Doctor, DoctorPost, PendingUser
-from ..serializers import DoctorPostSerializer
+from ..models import Doctor, DoctorPost, PendingUser, BreedingPost, AdoptionPost, Pet, Store
+from ..serializers import DoctorPostSerializer, PetSerializer
 from PIL import Image
 import os
 from django.contrib.auth import get_user_model
@@ -67,15 +67,15 @@ def generate_and_send_otp(user):
     cache_key = f'otp_{user.id}'
     cache.set(cache_key, otp, timeout=300)
 
-    # if settings.SEND_OTP_EMAIL:
-    #     send_mail(
-    #         'Your OTP Code',
-    #         f'Your verification code is: {otp}',
-    #         'PertCareApp',
-    #         [user.email],
-    #         fail_silently=False,
-    #     )
-        #send_otp_email(email, otp)
+    if settings.SEND_OTP_EMAIL:
+        send_mail(
+            'Your OTP Code',
+            f'Your verification code is: {otp}',
+            'PertCareApp',
+            [user.email],
+            fail_silently=False,
+        )
+        #send_otp_email(user.email, otp)
     return otp
 
 def handle_otp_verification(user_id, submitted_otp, request_status):
@@ -136,10 +136,19 @@ def sign_in(request):
     if not user:
         return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
+    store_id = None
+    query = Store.objects.filter(user = user)
+    if query:
+        store = query[0]
+        store_id = store.id
+
     refresh = RefreshToken.for_user(user)
     return Response({
         'refresh': str(refresh),
         'access': str(refresh.access_token),
+        'username':username ,
+        'store_id': store_id ,
+        'id':user.id
     })
 
 @api_view(['POST'])
@@ -183,6 +192,17 @@ def forgot_password(request):
         "user_id": user.id
     })
 
+@api_view(['POST'])
+def resend_otp(request):
+    email = request.data.get('email')
+    user = get_object_or_404(PendingUser, email = email)
+    otp_sent = generate_and_send_otp(user)
+    return Response({
+        "message": "OTP sent to your email",
+        "otp": otp_sent,
+        "user_id": user.id
+    })
+
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def reset_password(request, id):
@@ -199,11 +219,15 @@ def reset_password(request, id):
 @api_view(['GET'])
 def get_account(request, id):
     user = get_object_or_404(User, id = id)
+    photo = None
+    if user.user_photo :
+        photo = f"{settings.DOMAIN}{user.user_photo.url}"
     response = {"username":user.username,
                 "email":user.email,
                 "first_name":user.first_name,
                 "last_name":user.last_name,
-                "user_photo": user.user_photo.url if user.user_photo else None}
+                "user_photo": photo,
+                "country" : user.country}
     #photo = UserPhoto(user = user)
     #response.update({"user_photo":photo.user_photo.url if photo.user_photo else None})
 
@@ -211,12 +235,58 @@ def get_account(request, id):
         doctor = Doctor.objects.get(user = user)
         response.update({"first_name":"Dr." + user.first_name})
         response.update({"experience":doctor.experience})
+        response.update({"details":doctor.details})
         holder = []
         posts = DoctorPost.objects.filter(user = user)
         for post in posts:
             post = DoctorPostSerializer(post).data
             holder.append(post)
         response.update({"posts":holder})
+
+    adoption_posts = AdoptionPost.objects.filter(user_id = id)
+    arr = []
+    for post in adoption_posts:
+        pet = Pet.objects.get(id = post.pet_id)
+        serialized_pet = PetSerializer(pet).data
+        username = post.user.username
+        holder = serialized_pet
+        photo = None
+        if pet.photo :
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+        user_photo = None
+        if post.user.user_photo:
+            user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
+        holder.update({"photo":photo})
+        holder.update({"username":username})
+        holder.update({"details":post.details})
+        holder.update({"id":post.id})
+        holder.update({"logo":user_photo})
+        holder.update({"created_at":post.created_at})
+        arr.append(holder)
+    response.update({'adoption_posts':arr})
+
+    breeding_posts = BreedingPost.objects.filter(user_id = id)
+    arr = []
+    for post in breeding_posts:
+        pet = Pet.objects.get(id = post.pet_id)
+        serialized_pet = PetSerializer(pet).data
+        username = post.user.username
+        holder = serialized_pet
+        photo = None
+        if pet.photo :
+            photo = f"{settings.DOMAIN}{pet.photo.url}"
+        user_photo = None
+        if post.user.user_photo:
+            user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
+        holder.update({"photo":photo})
+        holder.update({"username":username})
+        holder.update({"details":post.details})
+        holder.update({"id":post.id})
+        holder.update({"logo":user_photo})
+        holder.update({"created_at":post.created_at})
+        arr.append(holder)
+    response.update({'breeding_posts':arr})
+
     return Response(response, status= status.HTTP_200_OK)
 
 

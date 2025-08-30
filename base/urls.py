@@ -1,11 +1,11 @@
-from django.urls import path 
+from django.urls import path
 from . import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 urlpatterns = [
-    
+
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     #####
     path('',views.index , name='index'),
@@ -17,13 +17,13 @@ urlpatterns = [
 
     path('account/verify_otp/sign_up', views.account.verify_otp, name='verify_otp_sign_up'),
     path('account/verify_otp/forgot_password', views.account.verify_otp, name='verify_otp_forgot_password'),
-    path('account/resend_code', views.account.forgot_password, name='resend_code' ),
+    path('account/resend_code', views.account.resend_otp, name='resend_otp' ),
     path('account/forgot_password',views.account.forgot_password, name = 'forgot_password'),
     path('account/reset_password/<str:id>', views.account.reset_password, name = 'reset_password'),
-    
+
     #####
     path('homepage', views.homepage.get_homepage, name = 'homepage' ),
-    
+
     #####
     path ('pet/add' , views.pet.add_pet, name = 'add_pet'),
     path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
@@ -45,7 +45,7 @@ urlpatterns = [
     path ('post/adoption/get', views.post.get_adoption_posts , name = 'get_adoption_posts'),
     path ('post/adoption/filter', views.post.adoption_filter , name = 'doption_filter'),
     path ('post/adoption/search', views.post.adoption_post_search , name = 'adoption_post_search'),
-    
+
     path ('post/breeding/add/<str:id>', views.post.add_breeding_post , name = 'add_breeding_post'),
     path ('post/breeding/delete/<str:id>', views.post.delete_breeding_post , name = 'delete_breeding_post'),
     path ('post/breeding/get/<str:id>', views.post.get_breeding_post , name = 'get_breeding_post'),

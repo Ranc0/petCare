@@ -17,6 +17,7 @@ class PetSerializer(serializers.ModelSerializer):
 
 
 
+
 class CatVaccinationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CatVaccination
