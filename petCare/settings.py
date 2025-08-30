@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'base',
     'rest_framework',
     'corsheaders',
+    'channels',
+    'chat',
 
 ]
 
@@ -173,3 +175,4 @@ DEFAULT_FROM_EMAIL = 'OTPreplier@gmail.com'
 SEND_OTP_EMAIL = True
 
 AUTH_USER_MODEL = 'base.CustomUser'
+ASGI_APPLICATION = 'config.asgi.application'
