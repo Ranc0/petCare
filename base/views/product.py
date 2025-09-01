@@ -89,6 +89,7 @@ def get_product (request, id):
         logo = f"{settings.DOMAIN}{store.logo.url}"
     response = ProductSerializer(product).data
     response.update({"photo":photo})
+    response.update({"store_id":store.id})
     response.update({"store_name":store.store_name})
     response.update({"logo":logo})
     response.update({"country":product.user.country})

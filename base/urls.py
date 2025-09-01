@@ -73,6 +73,7 @@ urlpatterns = [
     path('doctor/update_certificate_image/<str:id>', views.doctor.update_certificate_photo, name = 'update_certificate_photo'),
     path('doctor/add_post', views.doctor.add_post, name = 'add_post'),
     path('doctor/get_posts', views.doctor.get_posts, name = 'get_posts'),
+    path('doctor/get_doctors', views.doctor.get_doctors, name = 'get_doctors'),
 
     ######
     # path('ai/vision/dog', views.vision_ai.dog_vision, name = 'dog-skin'),

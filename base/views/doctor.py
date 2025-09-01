@@ -10,6 +10,7 @@ import os
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
+
 User = get_user_model()
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
@@ -18,7 +19,7 @@ def join_as_doctor (request):
     obj = DoctorSerializer(data = request.data, many = False)
     if (obj.is_valid()):
         obj = obj.data
-        obj.update({ "user" : user }) 
+        obj.update({ "user" : user })
         doctor = Doctor.objects.create(**obj, certificate_image = None)
         #DoctorSerializer(doctor).data
         return Response("user joined as doctor succesfully" , status=status.HTTP_201_CREATED )
@@ -55,7 +56,7 @@ def update_certificate_photo(request, id):
 
     except (IOError, SyntaxError):
         return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 @permission_classes([IsAuthenticated])
 @api_view(["POST"])
@@ -65,7 +66,7 @@ def add_post(request):
     obj = DoctorPostSerializer(data = request.data, many = False)
     if (obj.is_valid()):
         obj = obj.data
-        obj.update({ "user" : user }) 
+        obj.update({ "user" : user })
         doctor_post = DoctorPost.objects.create(**obj)
         return Response(DoctorPostSerializer(doctor_post).data , status=status.HTTP_201_CREATED )
     return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
@@ -85,3 +86,16 @@ def get_posts(request):
         holder.append(post_serialized)
     response = {"posts":holder}
     return Response(response, status= status.HTTP_200_OK)
+
+@api_view(["GET"])
+def get_doctors(request):
+    response = []
+    doctors = Doctor.objects.all()
+    for doctor in doctors:
+        user = User.objects.get(id = doctor.user.id)
+        holder = {}
+        holder.update({"first_name":"Dr." + user.first_name})
+        holder.update({"experience":doctor.experience})
+        holder.update({"details":doctor.details})
+        response.append(holder)
+    return Response(response, status = status.HTTP_200_OK)
