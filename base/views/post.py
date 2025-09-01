@@ -64,6 +64,7 @@ def get_adoption_posts (request):
         pet = Pet.objects.get(id = post.pet_id)
         serialized_pet = PetSerializer(pet).data
         username = post.user.username
+        country = post.user.country
         holder = serialized_pet
         photo = None
         if pet.photo :
@@ -74,6 +75,7 @@ def get_adoption_posts (request):
 
         holder.update({"photo":photo})
         holder.update({"username":username})
+        holder.update({"country":country})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
         holder.update({"logo":user_photo})
@@ -89,6 +91,7 @@ def get_adoption_post (request, id):
         return Response({"message":"no such id"}, status= status.HTTP_404_NOT_FOUND)
     post = post[0]
     username = post.user.username
+    country = post.user.country
     pet = Pet.objects.get(id = post.pet_id)
     serialized_pet = PetSerializer(pet).data
     response = serialized_pet
@@ -96,13 +99,18 @@ def get_adoption_post (request, id):
     if pet.photo :
         photo = f"{settings.DOMAIN}{pet.photo.url}"
 
+    user_photo = None
+    if post.user.user_photo:
+        user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
+
 
     response.update({"photo":photo})
     response.update({"username":username})
+    response.update({"country":country})
     response.update({"details":post.details})
     response.update({"id":post.id})
     response.update({"created_at":post.created_at})
-    response.update({"logo":f"{settings.DOMAIN}{post.user.user_photo.url}"})
+    response.update({"logo":user_photo})
 
     return Response(response, status= status.HTTP_200_OK)
 
@@ -135,17 +143,23 @@ def adoption_filter (request):
         if post:
             post = post[0]
             username = pet.user.username
+            country = pet.user.country
             serialized_pet = PetSerializer(pet).data
             holder = serialized_pet
             photo = None
             if pet.photo :
                 photo = f"{settings.DOMAIN}{pet.photo.url}"
 
+            user_photo = None
+            if pet.user.user_photo:
+                user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+
             holder.update({"photo":photo})
             holder.update({"username":username})
+            holder.update({"country":country})
             holder.update({"details":post.details})
             holder.update({"created_at":post.created_at})
-            holder.update({"logo":f"{settings.DOMAIN}{post.user.user_photo.url}"})
+            holder.update({"logo":user_photo})
 
             response.append(holder)
     return Response(response, status= 200)
@@ -160,6 +174,7 @@ def adoption_post_search(request):
     response = []
     for pet in pets:
         username = pet.user.username
+        country = pet.user.country
         post = AdoptionPost.objects.filter(pet = pet)
         if not post:
             continue
@@ -170,12 +185,17 @@ def adoption_post_search(request):
         if pet.photo :
             photo = f"{settings.DOMAIN}{pet.photo.url}"
 
+        user_photo = None
+        if pet.user.user_photo:
+            user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+
         holder.update({"photo":photo})
         holder.update({"username":username})
+        holder.update({"country":country})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
         holder.update({"created_at":post.created_at})
-        holder.update({"logo":f"{settings.DOMAIN}{post.user.user_photo.url}"})
+        holder.update({"logo":user_photo})
 
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
@@ -226,17 +246,23 @@ def get_breeding_posts (request):
         pet = Pet.objects.get(id = post.pet_id)
         serialized_pet = PetSerializer(pet).data
         username = post.user.username
+        country = post.user.country
         holder = serialized_pet
         photo = None
         if pet.photo :
             photo = f"{settings.DOMAIN}{pet.photo.url}"
 
+        user_photo = None
+        if post.user.user_photo:
+            user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
+
         holder.update({"photo":photo})
         holder.update({"username":username})
+        holder.update({"country":country})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
         holder.update({"created_at":post.created_at})
-        holder.update({"logo":f"{settings.DOMAIN}{post.user.user_photo.url}"})
+        holder.update({"logo":user_photo})
 
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
@@ -248,6 +274,7 @@ def get_breeding_post (request, id):
         return Response({"message":"no such id"}, status= status.HTTP_404_NOT_FOUND)
     post = post[0]
     username = post.user.username
+    country = post.user.country
     pet = Pet.objects.get(id = post.pet_id)
     serialized_pet = PetSerializer(pet).data
     response = serialized_pet
@@ -255,12 +282,17 @@ def get_breeding_post (request, id):
     if pet.photo :
         photo = f"{settings.DOMAIN}{pet.photo.url}"
 
+    user_photo = None
+    if pet.user.user_photo:
+        user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+
     response.update({"photo":photo})
     response.update({"username":username})
+    response.update({"country":country})
     response.update({"details":post.details})
     response.update({"id":post.id})
     response.update({"created_at":post.created_at})
-    response.update({"logo":f"{settings.DOMAIN}{post.user.user_photo.url}"})
+    response.update({"logo":user_photo})
 
     return Response(response, status= status.HTTP_200_OK)
 
@@ -291,17 +323,23 @@ def breeding_filter (request):
         if post:
             post = post[0]
             username = pet.user.username
+            country = pet.user.country
             serialized_pet = PetSerializer(pet).data
             holder = serialized_pet
             photo = None
             if pet.photo :
                 photo = f"{settings.DOMAIN}{pet.photo.url}"
 
+            user_photo = None
+            if pet.user.user_photo:
+                user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+
             holder.update({"photo":photo})
             holder.update({"username":username})
+            holder.update({"country":country})
             holder.update({"details":post.details})
             holder.update({"created_at":post.created_at})
-            holder.update({"logo":f"{settings.DOMAIN}{post.user.user_photo.url}"})
+            holder.update({"logo":user_photo})
 
             response.append(holder)
     return Response(response, status= 200)
@@ -316,6 +354,7 @@ def breeding_post_search(request):
     response = []
     for pet in pets:
         username = pet.user.username
+        country = pet.user.country
         post = BreedingPost.objects.filter(pet = pet)
         if not post:
             continue
@@ -327,12 +366,17 @@ def breeding_post_search(request):
         if pet.photo :
             photo = f"{settings.DOMAIN}{pet.photo.url}"
 
+        user_photo = None
+        if pet.user.user_photo:
+            user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+
         holder.update({"photo":photo})
         holder.update({"username":username})
+        holder.update({"country":country})
         holder.update({"details":post.details})
         holder.update({"id":post.id})
         holder.update({"created_at":post.created_at})
-        holder.update({"logo":f"{settings.DOMAIN}{post.user.user_photo.url}"})
+        holder.update({"logo":user_photo})
 
         response.append(holder)
     return Response(response, status= status.HTTP_200_OK)
