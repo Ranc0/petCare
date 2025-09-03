@@ -98,6 +98,7 @@ def get_doctors(request):
         if user.user_photo:
             user_photo = f"{settings.DOMAIN}{user.user_photo}"
         holder.update({"first_name":"Dr." + user.first_name})
+        holder.update({"last_name":user.last_name})
         holder.update({"photo":user_photo})
         holder.update({"experience":doctor.experience})
         holder.update({"details":doctor.details})
