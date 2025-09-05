@@ -1,14 +1,17 @@
-# apps/chat/jwt_middleware.py
 from urllib.parse import parse_qs
-from django.contrib.auth.models import AnonymousUser
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class JwtAuthMiddleware:
     def __init__(self, inner):
         self.inner = inner
-        self.jwt_auth = JWTAuthentication()
 
     async def __call__(self, scope, receive, send):
+        # ✅ Safe imports after Django setup
+        from django.contrib.auth.models import AnonymousUser
+        from rest_framework_simplejwt.authentication import JWTAuthentication
+        from asgiref.sync import sync_to_async
+
+        jwt_auth = JWTAuthentication()
+
         headers = dict(scope.get("headers", []))
         token = None
 
@@ -30,15 +33,10 @@ class JwtAuthMiddleware:
         user = AnonymousUser()
         if token:
             try:
-                validated = self.jwt_auth.get_validated_token(token)
-                user = await self._get_user_async(validated)
+                validated = jwt_auth.get_validated_token(token)
+                user = await sync_to_async(jwt_auth.get_user)(validated)
             except Exception:
                 user = AnonymousUser()
 
         scope['user'] = user
         return await self.inner(scope, receive, send)
-
-    async def _get_user_async(self, validated_token):
-        # JWTAuthentication.get_user is sync; call in thread if using async ORM
-        from asgiref.sync import sync_to_async
-        return await sync_to_async(self.jwt_auth.get_user)(validated_token)

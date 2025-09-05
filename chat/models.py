@@ -3,7 +3,6 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-User = settings.AUTH_USER_MODEL
 
 class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -22,7 +21,7 @@ class Conversation(models.Model):
 
 class ConversationParticipant(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='participants')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # key to unread + read receipts
     last_read_at = models.DateTimeField(default=timezone.make_aware(timezone.datetime.min))
 
@@ -40,7 +39,8 @@ class ConversationParticipant(models.Model):
 
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
+
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

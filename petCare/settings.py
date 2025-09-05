@@ -176,3 +176,9 @@ SEND_OTP_EMAIL = True
 
 AUTH_USER_MODEL = 'base.CustomUser'
 ASGI_APPLICATION = 'config.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
