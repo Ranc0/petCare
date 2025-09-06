@@ -1,5 +1,3 @@
-# apps/chat/consumers.py
-import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.utils import timezone
@@ -9,17 +7,13 @@ from .services import send_message, mark_conversation_opened
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        # print("WebSocket connect called")
-        # print("Scope:", self.scope)
-        
-
         self.user = self.scope["user"]
         if not self.user or not self.user.is_authenticated:
             await self.close(code=4401)
             return
 
         self.conversation_id = int(self.scope['url_route']['kwargs']['conversation_id'])
-        allowed = await self._user_in_conversation(self.user.id, self.conversation_id)
+        allowed = await self._user_in_conversation(self.user.username, self.conversation_id)
         if not allowed:
             await self.close(code=4403)
             return
@@ -39,39 +33,36 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             body = (content.get("body") or "").strip()
             if not body:
                 return
-            msg = await self._send_message(self.user.id, self.conversation_id, body)
-            # Broadcast to both participants
+            msg = await self._send_message(self.user.username, self.conversation_id, body)
             await self.channel_layer.group_send(self.group_name, {
                 "type": "chat.message",
                 "payload": {
                     "id": msg["id"],
                     "body": msg["body"],
-                    "sender_id": msg["sender_id"],
+                    "sender_username": msg["sender_username"],
                     "created_at": msg["created_at"],
                     "conversation_id": self.conversation_id,
-                    "seen": False,  # receiver hasn't opened yet
+                    "seen": False,
                 }
             })
 
         elif action == "open":
-            # user opened the chat: reset unread and push read receipt
             now = timezone.now().isoformat()
-            await self._mark_opened(self.user.id, self.conversation_id)
-            # Notify other participant that their messages up to now are seen
+            await self._mark_opened(self.user.username, self.conversation_id)
             await self.channel_layer.group_send(self.group_name, {
                 "type": "chat.read",
                 "payload": {
-                    "by_user_id": self.user.id,
+                    "by_username": self.user.username,
                     "last_read_at": now
                 }
             })
 
-        elif action == "read":  # optional explicit read
-            await self._mark_opened(self.user.id, self.conversation_id)
+        elif action == "read":
+            await self._mark_opened(self.user.username, self.conversation_id)
             await self.channel_layer.group_send(self.group_name, {
                 "type": "chat.read",
                 "payload": {
-                    "by_user_id": self.user.id,
+                    "by_username": self.user.username,
                     "last_read_at": timezone.now().isoformat()
                 }
             })
@@ -84,27 +75,25 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     # DB helpers
     @database_sync_to_async
-    def _user_in_conversation(self, user_id, conversation_id):
+    def _user_in_conversation(self, username, conversation_id):
         return ConversationParticipant.objects.filter(
-            conversation_id=conversation_id, user_id=user_id
+            conversation_id=conversation_id, user__username=username
         ).exists()
 
     @database_sync_to_async
-    def _send_message(self, user_id, conversation_id, body):
+    def _send_message(self, username, conversation_id, body):
         conv = Conversation.objects.get(pk=conversation_id)
-        # permission guard
-        if not ConversationParticipant.objects.filter(conversation=conv, user_id=user_id).exists():
-            raise PermissionDenied
-        msg = send_message(conv, conv.participants.get(user_id=user_id).user, body)
+        participant = conv.participants.get(user__username=username)
+        msg = send_message(conv, participant.user, body)
         return {
             "id": msg.id,
             "body": msg.body,
-            "sender_id": msg.sender_id,
+            "sender_username": msg.sender.username,
             "created_at": msg.created_at.isoformat(),
         }
 
     @database_sync_to_async
-    def _mark_opened(self, user_id, conversation_id):
+    def _mark_opened(self, username, conversation_id):
         conv = Conversation.objects.get(pk=conversation_id)
-        user = conv.participants.get(user_id=user_id).user
+        user = conv.participants.get(user__username=username).user
         mark_conversation_opened(conv, user)

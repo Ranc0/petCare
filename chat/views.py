@@ -70,7 +70,7 @@ class MessageCreateView(generics.CreateAPIView):
                 "payload": {
                     "id": msg.id,
                     "body": msg.body,
-                    "sender_id": msg.sender_id,
+                    "sender_username": msg.sender_username,
                     "created_at": msg.created_at.isoformat(),
                     "conversation_id": conversation_id,
                     "seen": False,
