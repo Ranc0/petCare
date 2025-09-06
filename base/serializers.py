@@ -1,21 +1,111 @@
 from rest_framework import serializers
-from .models import Pet , CatVaccination , DogVaccination , AdoptionPost , BreedingPost , Product, Store, Doctor, DoctorPost
+from .models import *
 from django.contrib.auth.models import User
 from datetime import date
+from django.contrib.auth.hashers import make_password
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class SignUpSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = PendingUser
+        fields = [
+            'username', 'email', 'password', 'confirm_password',
+            'first_name', 'last_name', 'country'
+        ]
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists() or PendingUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email exists")
+        return value
+
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists() or PendingUser.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username exists")
+        return value
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({"password": "Passwords don't match"})
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('confirm_password')
+        # Hash password if needed
+        validated_data['password'] = make_password(validated_data['password'])
+        return PendingUser.objects.create(**validated_data)
+from rest_framework import serializers
+from django.conf import settings
+from datetime import date
+from .models import Pet, AdoptionPost, BreedingPost
+
 
 class PetSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
 
     class Meta:
         model = Pet
-        exclude = ('user', 'photo')
+        exclude = ('user',)  # keep 'photo' so it's writable
 
     def get_age(self, obj):
         if obj.birth_date:
             return (date.today() - obj.birth_date).days
         return None
 
+    def to_representation(self, instance):
+        """Keep photo writable but return full URL in responses."""
+        rep = super().to_representation(instance)
+        request = self.context.get('request')
+        if instance.photo:
+            if request:
+                rep['photo'] = request.build_absolute_uri(instance.photo.url)
+            else:
+                rep['photo'] = f"{settings.DOMAIN}{instance.photo.url}"
+        return rep
 
+
+from rest_framework import serializers
+from django.conf import settings
+from .models import AdoptionPost, BreedingPost
+
+
+class AdoptionPostSerializer(serializers.ModelSerializer):
+    photo = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = AdoptionPost
+        exclude = ('user',)  # user will be set from request, not client
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance.photo:
+            rep['photo'] = f"{settings.DOMAIN}{instance.photo.url}"
+        else:
+            rep['photo'] = None
+        return rep
+
+
+class BreedingPostSerializer(serializers.ModelSerializer):
+    photo = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = BreedingPost
+        exclude = ('user',)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance.photo:
+            rep['photo'] = f"{settings.DOMAIN}{instance.photo.url}"
+        else:
+            rep['photo'] = None
+        return rep
 
 
 class CatVaccinationSerializer(serializers.ModelSerializer):
@@ -28,15 +118,6 @@ class DogVaccinationSerializer(serializers.ModelSerializer):
         model = DogVaccination
         exclude = ('pet',)
 
-class AdoptionPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AdoptionPost
-        exclude = ('user','pet','photo')
-
-class BreedingPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BreedingPost
-        exclude = ('user','pet','photo')
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
