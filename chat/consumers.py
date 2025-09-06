@@ -9,6 +9,10 @@ from .services import send_message, mark_conversation_opened
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
+        # print("WebSocket connect called")
+        # print("Scope:", self.scope)
+        
+
         self.user = self.scope["user"]
         if not self.user or not self.user.is_authenticated:
             await self.close(code=4401)
