@@ -57,6 +57,25 @@ class MessageCreateView(generics.CreateAPIView):
         body = request.data.get('body', '').strip()
         if not body:
             return Response({"detail": "Message body required"}, status=400)
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
         msg = send_message(conv, request.user, body)
+        channel_layer = get_channel_layer()
+        group_name = f"conversation_{conversation_id}"
+
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "chat.message",
+                "payload": {
+                    "id": msg.id,
+                    "body": msg.body,
+                    "sender_id": msg.sender_id,
+                    "created_at": msg.created_at.isoformat(),
+                    "conversation_id": conversation_id,
+                    "seen": False,
+                }
+            }
+        )
         serializer = self.get_serializer(msg, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
