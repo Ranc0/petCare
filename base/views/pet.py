@@ -12,86 +12,37 @@ from django.conf import settings
 
 
 User = get_user_model()
-@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def add_pet(request):
-    user = request.user
-    serializer = PetSerializer(data=request.data)
 
-    if serializer.is_valid():
-        pet = serializer.save(user=user, photo=None)  # Let DRF handle creation
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
+
+class PetListCreateView(generics.ListCreateAPIView):
+    serializer_class = PetSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Only return pets belonging to the logged-in user
+        return Pet.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        pet = serializer.save(user=self.request.user)
+        # Auto-create vaccination record
         if pet.type == 'cat':
             CatVaccination.objects.create(pet=pet)
         else:
             DogVaccination.objects.create(pet=pet)
 
-        return Response(PetSerializer(pet).data, status=status.HTTP_201_CREATED)
 
-    return Response({"message": "form is not valid"}, status=status.HTTP_400_BAD_REQUEST)
+class PetRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = PetSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        # Restrict to pets owned by the logged-in user
+        return Pet.objects.filter(user=self.request.user)
 
-
-@permission_classes([IsAuthenticated])
-@api_view(['PUT'])
-def update_pet (request , id ):
-    pet = get_object_or_404(Pet, id = id)
-    if request.user != pet.user:
-        return Response({"message":"user does not have this pet"}, status= status.HTTP_401_UNAUTHORIZED)
-    obj = PetSerializer(data=request.data, many = False)
-    if obj.is_valid():
-        for attr, value in obj.data.items():
-            setattr(pet, attr, value)
-        pet.save()
-        response = PetSerializer(pet).data
-
-        photo = None
-
-        if pet.photo:
-            photo = f"{settings.DOMAIN}{pet.photo.url}"
-        response.update({'photo':photo})
-        return Response(response, status= status.HTTP_200_OK)
-    else:
-        return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
-
-@permission_classes([IsAuthenticated])
-@api_view(['DELETE'])
-def delete_pet (request , id ):
-    pet = get_object_or_404(Pet, id = id)
-    if request.user != pet.user:
-        return Response({"message":"user does not have this pet"}, status= status.HTTP_401_UNAUTHORIZED)
-    pet.delete()
-    return Response({"message":"pet deleted successfully"}, status= status.HTTP_200_OK)
-
-#@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_pet (request , id ):
-    pet = get_object_or_404(Pet, id = id)
-    response = PetSerializer(pet).data
-
-    photo = None
-
-    if pet.photo:
-        photo = f"{settings.DOMAIN}{pet.photo.url}"
-    response.update({'photo':photo})
-    return Response(response, status= status.HTTP_200_OK)
-
-@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_user_pets (request):
-    user = request.user
-    response =[]
-    pets = Pet.objects.filter(user = user)
-    for pet in pets:
-        pet1 = PetSerializer(pet).data
-        photo = None
-
-        if pet.photo:
-            photo = f"{settings.DOMAIN}{pet.photo.url}"
-        pet1.update({'photo':photo})
-
-        response.append(pet1)
-    return Response( response, status= status.HTTP_200_OK )
 
 @permission_classes([IsAuthenticated])
 @api_view(['PUT'])

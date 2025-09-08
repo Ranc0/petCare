@@ -4,6 +4,8 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from django.urls import path
+from .views import PetListCreateView, PetRetrieveUpdateDestroyView
 urlpatterns = [
 
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -25,11 +27,11 @@ urlpatterns = [
     path('homepage', views.homepage.get_homepage, name = 'homepage' ),
 
     #####
-    path ('pet/add' , views.pet.add_pet, name = 'add_pet'),
-    path ('pet/update/<str:id>' , views.pet.update_pet, name = 'update_pet'),
-    path ('pet/get/<str:id>' , views.pet.get_pet, name = 'get_pet'),
-    path ('pet/get_user_pets', views.pet.get_user_pets, name = 'get_user_pets'),
-    path ('pet/delete/<str:id>' , views.pet.delete_pet, name = 'delete_pet'),
+    path('pet/add', PetListCreateView.as_view(), name='add_pet'),
+    path('pet/get_user_pets', PetListCreateView.as_view(), name='get_user_pets'),
+    path('pet/get/<str:pk>', PetRetrieveUpdateDestroyView.as_view(), name='get_pet'),
+    path('pet/update/<str:pk>', PetRetrieveUpdateDestroyView.as_view(), name='update_pet'),
+    path('pet/delete/<str:pk>', PetRetrieveUpdateDestroyView.as_view(), name='delete_pet'),
     path ('pet/update_photo/<str:id>' , views.pet.update_pet_photo, name = 'update_pet_photo'),
     path ('pet/get/vaccinations/<str:id>', views.pet.get_vaccinations, name = 'get_vaccinations'),
     path ('pet/update/vaccinations/<str:id>', views.pet.update_vaccinations, name = 'update_vaccinations'),

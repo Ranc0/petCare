@@ -64,10 +64,7 @@ class PetSerializer(serializers.ModelSerializer):
         rep = super().to_representation(instance)
         request = self.context.get('request')
         if instance.photo:
-            if request:
-                rep['photo'] = request.build_absolute_uri(instance.photo.url)
-            else:
-                rep['photo'] = f"{settings.DOMAIN}{instance.photo.url}"
+           rep['photo'] = f"{settings.DOMAIN}{instance.photo.url}"
         return rep
 
 
@@ -162,3 +159,43 @@ class DoctorPostSerializer(serializers.ModelSerializer):
         if obj.user and obj.user.user_photo:
             return f"{settings.DOMAIN}{obj.user.user_photo.url}"
         return None
+    
+from rest_framework import serializers
+from django.conf import settings
+from .models import Product, AdoptionPost, BreedingPost
+
+class HomepageProductSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = ('id', 'photo', 'name', 'price')
+
+    def get_photo(self, obj):
+        return f"{settings.DOMAIN}{obj.photo.url}" if obj.photo else None
+
+
+class HomepageAdoptionPostSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+    name = serializers.CharField(source='pet.name', read_only=True)
+    gender = serializers.CharField(source='pet.gender', read_only=True)
+
+    class Meta:
+        model = AdoptionPost
+        fields = ('id', 'photo', 'name', 'gender')
+
+    def get_photo(self, obj):
+        return f"{settings.DOMAIN}{obj.pet.photo.url}" if obj.pet and obj.pet.photo else None
+
+
+class HomepageBreedingPostSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+    name = serializers.CharField(source='pet.name', read_only=True)
+    gender = serializers.CharField(source='pet.gender', read_only=True)
+
+    class Meta:
+        model = BreedingPost
+        fields = ('id', 'photo', 'name', 'gender')
+
+    def get_photo(self, obj):
+        return f"{settings.DOMAIN}{obj.pet.photo.url}" if obj.pet and obj.pet.photo else None
