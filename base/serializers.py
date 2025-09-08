@@ -129,12 +129,36 @@ class StoreSerializer(serializers.ModelSerializer):
         model = Store
         exclude = ('user','logo')
 
+
 class DoctorSerializer(serializers.ModelSerializer):
+    certificate_image = serializers.ImageField(write_only=True, required=True, allow_null=False)
+    first_name = serializers.SerializerMethodField()
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    user_photo = serializers.SerializerMethodField()
+
     class Meta:
         model = Doctor
-        exclude = ('user','certificate_image')
+        exclude = ('user',)  # user set in view
+
+    def get_first_name(self, obj):
+        return f"Dr. {obj.user.first_name}" if obj.user and obj.user.first_name else None
+
+    def get_user_photo(self, obj):
+        if obj.user and obj.user.user_photo:
+            return f"{settings.DOMAIN}{obj.user.user_photo.url}"
+        return None
+
 
 class DoctorPostSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    logo = serializers.SerializerMethodField()
+
     class Meta:
         model = DoctorPost
-        exclude = ('user',)
+        exclude = ('user',)  # user will be set in the view
+
+    def get_logo(self, obj):
+        if obj.user and obj.user.user_photo:
+            return f"{settings.DOMAIN}{obj.user.user_photo.url}"
+        return None

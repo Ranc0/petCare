@@ -14,16 +14,22 @@ from django.conf import settings
 User = get_user_model()
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
-def join_as_doctor (request):
+def join_as_doctor(request):
     user = request.user
-    obj = DoctorSerializer(data = request.data, many = False)
-    if (obj.is_valid()):
-        obj = obj.data
-        obj.update({ "user" : user })
-        doctor = Doctor.objects.create(**obj, certificate_image = None)
-        #DoctorSerializer(doctor).data
-        return Response("user joined as doctor succesfully" , status=status.HTTP_201_CREATED )
-    return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
+    if Doctor.objects.filter(user = user):
+        return Response({"message": "you are already a doctor"}, status=status.HTTP_409_CONFLICT)
+    serializer = DoctorSerializer(data=request.data)
+    if serializer.is_valid():
+        doctor = serializer.save(user=user, certificate_image=None)
+        return Response(
+            DoctorSerializer(doctor).data,
+            status=status.HTTP_201_CREATED
+        )
+    return Response(
+        {"message": "form is not valid", "errors": serializer.errors},
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
 
 @permission_classes([IsAuthenticated])
 @api_view(['PUT'])
@@ -62,51 +68,29 @@ def update_certificate_photo(request, id):
 @api_view(["POST"])
 def add_post(request):
     user = request.user
-    doctor = get_object_or_404(Doctor, user = user)
-    obj = DoctorPostSerializer(data = request.data, many = False)
-    if (obj.is_valid()):
-        obj = obj.data
-        obj.update({ "user" : user })
-        doctor_post = DoctorPost.objects.create(**obj)
-        return Response(DoctorPostSerializer(doctor_post).data , status=status.HTTP_201_CREATED )
-    return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
+    get_object_or_404(Doctor, user=user)  # ensures only doctors can post
+
+    serializer = DoctorPostSerializer(data=request.data)
+    if serializer.is_valid():
+        doctor_post = serializer.save(user=user)
+        return Response(
+            DoctorPostSerializer(doctor_post).data,
+            status=status.HTTP_201_CREATED
+        )
+    return Response(
+        {"message": serializer.errors},
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
 
 @api_view(["GET"])
 def get_posts(request):
-    holder = []
     posts = DoctorPost.objects.all()
-    for post in posts:
-        user_photo = None
-        if post.user.user_photo:
-            user_photo = f"{settings.DOMAIN}{post.user.user_photo}"
-        post_serialized = DoctorPostSerializer(post).data
-        post_serialized.update({"logo":user_photo})
-        post_serialized.update({"first_name" : post.user.first_name})
-        post_serialized.update({"last_name" : post.user.last_name})
-        holder.append(post_serialized)
-    response = {"posts":holder}
-    return Response(response, status= status.HTTP_200_OK)
+    return Response({"posts": DoctorPostSerializer(posts, many=True).data})
 
 @api_view(["GET"])
 def get_doctors(request):
-    response = []
     doctors = Doctor.objects.all()
-    for doctor in doctors:
-        user = doctor.user
-        holder = {}
-        user_photo = None
-        if user.user_photo:
-            user_photo = f"{settings.DOMAIN}{user.user_photo.url}"
-        holder.update({"id":user.id})
-        holder.update({"first_name":"Dr." + user.first_name})
-        holder.update({"last_name":user.last_name})
-        holder.update({"photo":user_photo})
-        holder.update({"experience":doctor.experience})
-        holder.update({"details":doctor.details})
-        posts = []
-        query = DoctorPost.objects.filter(user = user)
-        for post in query:
-            posts.append(DoctorPostSerializer(post).data)
-        holder.update({"posts" : posts})
-        response.append(holder)
-    return Response(response, status = status.HTTP_200_OK)
+    return Response(DoctorSerializer(doctors, many=True).data)
+
+
