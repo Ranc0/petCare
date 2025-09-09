@@ -155,6 +155,7 @@ def adoption_filter (request):
                 user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
 
             holder.update({"photo":photo})
+            holder.update({"id":post.id})
             holder.update({"username":username})
             holder.update({"country":country})
             holder.update({"details":post.details})
@@ -335,6 +336,7 @@ def breeding_filter (request):
                 user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
 
             holder.update({"photo":photo})
+            holder.update({"id":post.id})
             holder.update({"username":username})
             holder.update({"country":country})
             holder.update({"details":post.details})
