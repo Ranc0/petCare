@@ -26,7 +26,7 @@
     "wheezing": ["whistling sound", "noisy breathing", "wheezy"],
     "difficulty breathing": ["hard to breathe", "labored breathing", "dyspnea", "صعوبة تنفس", "trouble breathing", "short of breath"],
     "open-mouth breathing": ["panting", "mouth open to breathe"],
-    "excessive scratching": ["itching a lot", "scratching nonstop", "pruritus", "حكة"],
+    "excessive scratching": ["itching", "scratching", "pruritus", "حكة"],
     "hair loss": ["bald patches", "fur missing", "alopecia"],
     "red or inflamed skin": ["red skin", "irritated skin", "inflamed patches"],
     "scabs": ["crusts", "scabby skin", "scabbed sores"],
@@ -249,17 +249,56 @@
             "Hydrate and monitor stool"
         ]
     },
-    "heartworm_disease": {
-        "symptoms": [
-            "Coughing",
-            "Lethargy",
-            "Weight loss"
-        ],
-        "causes": [
-            "Mosquito-transmitted parasite",
-            "Larval migration to lungs",
-            "Immune response to worms"
-        ]
-      }
+  "heartworm_disease": {
+  "symptoms": [
+    "Coughing",
+    "Rapid or labored breathing",
+    "Lethargy",
+    "Vomiting",
+    "Weight loss",
+    "Sudden collapse or death (in severe cases)"
+  ],
+  "causes": [
+    "Mosquito-transmitted parasite (Dirofilaria immitis)",
+    "Larval migration to lungs and pulmonary arteries",
+    "Immune response to dying immature worms",
+    "Aberrant migration to other organs (e.g., brain, abdomen)"
+  ],
+  "care_tips": [
+    "Use monthly heartworm preventatives even for indoor cats",
+    "Schedule regular veterinary checkups and heartworm testing",
+    "Monitor for respiratory symptoms and seek prompt care",
+    "Avoid mosquito exposure by keeping cats indoors during peak hours",
+    "Understand that no approved adulticide exists for cats — prevention is key",
+    "Supportive care may include corticosteroids and oxygen therapy"
+  ]
+},
+"rabies": {
+  "symptoms": [
+    "Sudden behavioral changes (e.g., aggression, anxiety)",
+    "Excessive drooling or foaming",
+    "Difficulty swallowing",
+    "Staggering or loss of coordination",
+    "Seizures and paralysis",
+    "Sensitivity to light or sound"
+  ],
+  "causes": [
+    "Bite from an infected animal (e.g., bat, raccoon, fox)",
+    "Contact with infected saliva via open wounds or mucous membranes",
+    "Virus migration through nerves to the brain",
+    "Replication in salivary glands enabling transmission"
+  ],
+  "care_tips": [
+    "Ensure rabies vaccination is up-to-date (required by law in many regions)",
+    "Keep cats indoors to reduce wildlife exposure",
+    "Supervise outdoor time if allowed, especially at night",
+    "Quarantine new or rescued cats before introducing them to others",
+    "Seek immediate veterinary care after any bite or suspicious wound",
+    "Educate household members about rabies risks and safe handling"
+  ]
+}
+
+
+
     }
   }

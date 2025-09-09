@@ -61,8 +61,7 @@ def build_vocab(syn_index: Dict[str, List[str]]):
     for canonical, variants in syn_index.items():
         all_forms = set([canonical] + variants)
         for phrase in all_forms:
-            for sub in split_pattern.split(phrase):
-                norm = normalize_text(sub)
+                norm = normalize_text(phrase) 
                 if not norm:
                     continue
                 # keep first seen canonical for a norm (stable)
