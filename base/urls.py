@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from django.urls import path
-from .views import PetListCreateView, PetRetrieveUpdateDestroyView
+from .views import PetListCreateView, PetRetrieveUpdateDestroyView , VaccinationRetrieveUpdateView
 urlpatterns = [
 
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -33,9 +33,8 @@ urlpatterns = [
     path('pet/update/<str:pk>', PetRetrieveUpdateDestroyView.as_view(), name='update_pet'),
     path('pet/delete/<str:pk>', PetRetrieveUpdateDestroyView.as_view(), name='delete_pet'),
     path ('pet/update_photo/<str:id>' , views.pet.update_pet_photo, name = 'update_pet_photo'),
-    path ('pet/get/vaccinations/<str:id>', views.pet.get_vaccinations, name = 'get_vaccinations'),
-    path ('pet/update/vaccinations/<str:id>', views.pet.update_vaccinations, name = 'update_vaccinations'),
-
+    path('pet/get/vaccinations/<str:id>',VaccinationRetrieveUpdateView.as_view(), name='get_vaccinations'),
+    path('pet/update/vaccinations/<str:id>', VaccinationRetrieveUpdateView.as_view(),name='update_vaccinations'),
     #####
     #path('vaccination/dog/update/<str:id>' , views.vaccination.update_dog_vaccination, name = 'update_dog_vaccination'),
     #path('vaccination/cat/update/<str:id>' , views.vaccination.update_cat_vaccination, name = 'update_cat_vaccination'),

@@ -37,92 +37,70 @@ class PetListCreateView(generics.ListCreateAPIView):
 
 class PetRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PetSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return []  # No authentication required for GET
+        return [permissions.IsAuthenticated()]  # Auth required for PUT/DELETE
 
     def get_queryset(self):
-        # Restrict to pets owned by the logged-in user
-        return Pet.objects.filter(user=self.request.user)
+        if self.request.method == 'GET':
+            return Pet.objects.all()  # Allow public access to any pet
+        return Pet.objects.filter(user=self.request.user)  # Restrict updates/deletes
 
 
 @permission_classes([IsAuthenticated])
 @api_view(['PUT'])
 def update_pet_photo(request, id):
-    pet = Pet.objects.filter(id = id)
-    if pet:
-        pet = pet[0]
-    else:
-        return Response({"message":"pet not found"}, status= status.HTTP_404_NOT_FOUND)
+    pet = get_object_or_404(Pet, id=id)
+    if pet.user != request.user:
+        return Response({"message": "You do not own this pet"}, status=status.HTTP_403_FORBIDDEN)
+
     photo = request.FILES.get('photo')
     if not photo:
         return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Validate the uploaded file as an image
+        # Validate image
         image = Image.open(photo)
-        image.verify()  # Verify the image integrity
+        image.verify()
+        photo.seek(0)  
 
-        # Delete the old photo if it exists
+        # Delete old photo if exists
         if pet.photo and os.path.isfile(pet.photo.path):
             os.remove(pet.photo.path)
 
-        # Update the photo field
+        # Save new photo
         pet.photo = photo
         pet.save()
 
-        # Serialize the updated pet object
-        response = PetSerializer(pet).data
-        ph = None
-        if pet.photo:
-            ph = f"{settings.DOMAIN}{pet.photo.url}"
-        response.update({"photo": ph})
+        # Serialize updated pet
+        response = PetSerializer(pet, context={'request': request}).data
         return Response(response, status=status.HTTP_200_OK)
 
     except (IOError, SyntaxError):
         return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
 
-@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_vaccinations (request , id):
-    try:
-        pet = Pet.objects.get(id = id)
-    except Pet.DoesNotExist:
-        return Response({"message": "pet not found"}, status= status.HTTP_404_NOT_FOUND)
-    if request.user != pet.user:
-        return Response({"message": "user does not have the pet"}, status= status.HTTP_401_UNAUTHORIZED)
-    if pet.type == 'cat':
-        vaccination1 = CatVaccination.objects.get(pet = pet)
-        response = CatVaccinationSerializer(vaccination1).data
-    elif pet.type == 'dog':
-        vaccination2 = DogVaccination.objects.get(pet = pet)
-        response = DogVaccinationSerializer(vaccination2).data
-    return Response(response, status= 200)
+class VaccinationRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-@permission_classes ([IsAuthenticated])
-@api_view(['PUT'])
-def update_vaccinations(request, id):
-    try:
-        pet = Pet.objects.get(id = id)
-    except Pet.DoesNotExist:
-        return Response({'message':'pet not found'}, status= 404)
+    def get_pet(self):
+        pet = get_object_or_404(Pet, id=self.kwargs['id'])
+        if pet.user != self.request.user:
+            self.permission_denied(self.request, message="user does not have the pet")
+        return pet
 
-    if request.user != pet.user:
-        return Response({'message':'user does not have the pet'}, status = 401)
-    if pet.type == 'cat':
-        vaccination = CatVaccination.objects.get(pet = pet)
-        obj = CatVaccinationSerializer(data=request.data, many = False)
-    elif pet.type == 'dog':
-        vaccination = DogVaccination.objects.get(pet = pet)
-        obj = DogVaccinationSerializer(data=request.data, many = False)
-
-    if obj.is_valid():
-        for attr, value in obj.data.items():
-            setattr(vaccination, attr, value)
-        vaccination.save()
+    def get_object(self):
+        pet = self.get_pet()
         if pet.type == 'cat':
-            response = CatVaccinationSerializer(vaccination).data
+            return get_object_or_404(CatVaccination, pet=pet)
+        elif pet.type == 'dog':
+            return get_object_or_404(DogVaccination, pet=pet)
         else:
-            response = DogVaccinationSerializer(vaccination).data
-        return Response(response , status = 200)
-    else:
-        return Response(obj.errors, status=status.HTTP_400_BAD_REQUEST)
+            self.permission_denied(self.request, message="Unknown pet type")
+
+    def get_serializer_class(self):
+        pet = self.get_pet()
+        return CatVaccinationSerializer if pet.type == 'cat' else DogVaccinationSerializer
+
 
