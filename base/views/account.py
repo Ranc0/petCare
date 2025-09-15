@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from ..models import Doctor, DoctorPost, PendingUser, BreedingPost, AdoptionPost, Pet, Store
-from ..serializers import DoctorPostSerializer, PetSerializer , BreedingPostSerializer , AdoptionPostSerializer
+from ..serializers import DoctorPostSerializer, PetSerializer , BreedingPostReadSerializer , AdoptionPostReadSerializer
 from PIL import Image
 import os
 from ..utils import *
@@ -146,7 +146,7 @@ def get_account(request, id):
 
     # Adoption posts
     adoption_posts = AdoptionPost.objects.filter(user_id=id)
-    response['adoption_posts'] = AdoptionPostSerializer(
+    response['adoption_posts'] = AdoptionPostReadSerializer(
         adoption_posts,
         many=True,
         context={'request': request}
@@ -154,7 +154,7 @@ def get_account(request, id):
 
     # Breeding posts
     breeding_posts = BreedingPost.objects.filter(user_id=id)
-    response['breeding_posts'] = BreedingPostSerializer(
+    response['breeding_posts'] = BreedingPostReadSerializer(
         breeding_posts,
         many=True,
         context={'request': request}

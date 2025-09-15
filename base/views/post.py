@@ -6,377 +6,210 @@ from ..models import Pet  , AdoptionPost , BreedingPost
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
-from ..serializers import PetSerializer, AdoptionPostSerializer
+from ..serializers import PetSerializer, AdoptionPostWriteSerializer , AdoptionPostReadSerializer
 from rest_framework import status
 from django.db.models import Q
 from django.conf import settings
+from rest_framework import generics, permissions, serializers
+from django.shortcuts import get_object_or_404
+
+# List all adoption posts (public)
+class AdoptionPostListView(generics.ListAPIView):
+    queryset = AdoptionPost.objects.select_related('pet', 'user').all()
+    serializer_class = AdoptionPostReadSerializer
+    permission_classes = []  
+
+# Retrieve a single adoption post (public)
+class AdoptionPostDetailView(generics.RetrieveAPIView):
+    queryset = AdoptionPost.objects.select_related('pet', 'user').all()
+    serializer_class = AdoptionPostReadSerializer
+    permission_classes = []  
+    lookup_field = 'id'
+
+# Create a new adoption post (auth required)
+class AdoptionPostCreateView(generics.CreateAPIView):
+    serializer_class = AdoptionPostWriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        pet = get_object_or_404(Pet, id=self.kwargs['id'])
+        if AdoptionPost.objects.filter(pet=pet).exists():
+            raise serializers.ValidationError({"message": "pet adoption post already exists"})
+        serializer.save(user=self.request.user, pet=pet)
+
+# Delete an adoption post (auth + ownership required)
+class AdoptionPostDeleteView(generics.DestroyAPIView):
+    queryset = AdoptionPost.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            self.permission_denied(self.request, message="user does not have this post")
+        instance.delete()
 
 
-
-@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def add_adoption_post (request , id):
-    user = request.user
-    pet = Pet.objects.filter(id=id)
-    if not pet :
-        return Response({"message":"no such id"}, status=status.HTTP_404_NOT_FOUND)
-    post_test = AdoptionPost.objects.filter(pet_id = id)
-    if post_test:
-        return Response({"message":"pet adoption post already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    pet = pet[0]
-    details = request.data["details"]
-    post = AdoptionPost.objects.create(pet = pet , user = user , details = details)
-    serialized_pet = PetSerializer( pet, many=False).data
-    response = serialized_pet
-    photo = None
-    if pet.photo :
-        photo = f"{settings.DOMAIN}{pet.photo.url}"
-
-    response.update({"photo":photo})
-    response.update({"details":details})
-    response.update({"id":post.id})
-    return Response(response , status=status.HTTP_201_CREATED)
-
-#delete post should be made
-#no need to make a view for updating
-#a getter should be made to list all the posts available
-#getters can be separated for dogs and cats ( filters )
-# same process for breeding posts (I made the model for you)
-
-@permission_classes([IsAuthenticated])
-@api_view(['DELETE'])
-def delete_adoption_post (request , id):
-    adoption_post = AdoptionPost.objects.filter(id = id)
-    if not adoption_post:
-        return Response({"message" : "no such id"} , status = status.HTTP_404_NOT_FOUND)
-    adoption_post = adoption_post[0]
-    if adoption_post.user != request.user:
-        return Response({"message":"user does not have this post"}, status = status.HTTP_401_UNAUTHORIZED)
-    adoption_post.delete()
-    return Response({"message" : "post deleted successfully"})
-
-#@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_adoption_posts (request):
-    posts = AdoptionPost.objects.all()
-    response = []
-    for post in posts:
-        pet = Pet.objects.get(id = post.pet_id)
-        serialized_pet = PetSerializer(pet).data
-        username = post.user.username
-        country = post.user.country
-        holder = serialized_pet
-        photo = None
-        if pet.photo :
-            photo = f"{settings.DOMAIN}{pet.photo.url}"
-        user_photo = None
-        if post.user.user_photo:
-            user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
-
-        holder.update({"photo":photo})
-        holder.update({"username":username})
-        holder.update({"country":country})
-        holder.update({"details":post.details})
-        holder.update({"id":post.id})
-        holder.update({"logo":user_photo})
-        holder.update({"created_at":post.created_at})
-        response.append(holder)
-    return Response(response, status= status.HTTP_200_OK)
-
-#@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_adoption_post (request, id):
-    post = AdoptionPost.objects.filter(id = id)
-    if not post:
-        return Response({"message":"no such id"}, status= status.HTTP_404_NOT_FOUND)
-    post = post[0]
-    username = post.user.username
-    country = post.user.country
-    pet = Pet.objects.get(id = post.pet_id)
-    serialized_pet = PetSerializer(pet).data
-    response = serialized_pet
-    photo = None
-    if pet.photo :
-        photo = f"{settings.DOMAIN}{pet.photo.url}"
-
-    user_photo = None
-    if post.user.user_photo:
-        user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
+from rest_framework.views import APIView
+from django.utils.dateparse import parse_date
 
 
-    response.update({"photo":photo})
-    response.update({"username":username})
-    response.update({"country":country})
-    response.update({"details":post.details})
-    response.update({"id":post.id})
-    response.update({"created_at":post.created_at})
-    response.update({"logo":user_photo})
+class AdoptionPostFilterView(APIView):
+    permission_classes = []  
 
-    return Response(response, status= status.HTTP_200_OK)
+    def post(self, request):
+        data = request.data
+        filter_params = {
+            'pet__type': data.get('type'),
+            'pet__breed': data.get('breed'),
+            'pet__gender': data.get('gender'),
+        }
 
-#@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def adoption_filter (request):
-    filter_params = {
-        'type': request.data.get('type',None),
-        'breed': request.data.get('breed',None),
-        'gender': request.data.get('gender',None),
-    }
-    birth_date = request.data.get('age',None)
-    country = request.data.get('country',None)
-    if country:
-        filter_params['user__country'] = country
-    if birth_date:
-        try:
-            birth_date_obj = datetime.datetime.strptime(birth_date, '%Y-%m-%d').date()
-            #print(birth_date_obj)
-            #print( Pet.objects.get(id=9).birth_date)
-            filter_params['birth_date__gte'] = birth_date_obj
-        except ValueError:
-            return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+        country = data.get('country')
+        if country:
+            filter_params['user__country'] = country
 
-    filter_params = {key: value for key, value in filter_params.items() if value is not None}
-    pets = Pet.objects.filter(**filter_params).order_by('birth_date')
-    response = []
-    for pet in pets:
-        post = AdoptionPost.objects.filter(pet_id = pet.id)
-        if post:
-            post = post[0]
-            username = pet.user.username
-            country = pet.user.country
-            serialized_pet = PetSerializer(pet).data
-            holder = serialized_pet
-            photo = None
-            if pet.photo :
-                photo = f"{settings.DOMAIN}{pet.photo.url}"
+        birth_date = data.get('age')
+        if birth_date:
+            birth_date_obj = parse_date(birth_date)
+            if not birth_date_obj:
+                return Response(
+                    {"message": "Invalid date format. Use YYYY-MM-DD."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            filter_params['pet__birth_date__gte'] = birth_date_obj
 
-            user_photo = None
-            if pet.user.user_photo:
-                user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+        filter_params = {k: v for k, v in filter_params.items() if v is not None}
 
-            holder.update({"photo":photo})
-            holder.update({"username":username})
-            holder.update({"country":country})
-            holder.update({"details":post.details})
-            holder.update({"created_at":post.created_at})
-            holder.update({"logo":user_photo})
+        posts = (
+            AdoptionPost.objects
+            .select_related('pet', 'user')
+            .filter(**filter_params)
+            .order_by('pet__birth_date')
+        )
 
-            response.append(holder)
-    return Response(response, status= 200)
+        serializer = AdoptionPostReadSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
-def adoption_post_search(request):
-    text = request.data.get('text',None)
-    if text is not None:
-        pets = Pet.objects.filter(Q(type__icontains= text)|Q(breed__icontains= text)|Q(gender__icontains= text)|Q(name__icontains= text))
-    else:
-        pets= Pet.objects.all()
-    response = []
-    for pet in pets:
-        username = pet.user.username
-        country = pet.user.country
-        post = AdoptionPost.objects.filter(pet = pet)
-        if not post:
-            continue
-        post = post[0]
-        serialized_pet = PetSerializer(pet).data
-        holder = serialized_pet
-        photo = None
-        if pet.photo :
-            photo = f"{settings.DOMAIN}{pet.photo.url}"
+class AdoptionPostSearchView(APIView):
+    permission_classes = []  # Public
 
-        user_photo = None
-        if pet.user.user_photo:
-            user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+    def post(self, request):
+        text = request.data.get('text')
+        pet_filter = Q()
+        if text:
+            pet_filter = (
+                Q(pet__type__icontains=text) |
+                Q(pet__breed__icontains=text) |
+                Q(pet__gender__icontains=text) |
+                Q(pet__name__icontains=text)
+            )
 
-        holder.update({"photo":photo})
-        holder.update({"username":username})
-        holder.update({"country":country})
-        holder.update({"details":post.details})
-        holder.update({"id":post.id})
-        holder.update({"created_at":post.created_at})
-        holder.update({"logo":user_photo})
+        posts = (
+            AdoptionPost.objects
+            .select_related('pet', 'user')
+            .filter(pet_filter)
+        )
 
-        response.append(holder)
-    return Response(response, status= status.HTTP_200_OK)
-
+        serializer = AdoptionPostReadSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 #############################################################################################
 
-@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def add_breeding_post (request , id):
-    user = request.user
-    pet = Pet.objects.filter(id=id)
-    if not pet :
-        return Response({"message":"no such id"}, status=status.HTTP_404_NOT_FOUND)
-    post_test = BreedingPost.objects.filter(pet_id = id)
-    if post_test:
-        return Response({"message":"pet breeding post already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    pet = pet[0]
-    details = request.data["details"]
-    post = BreedingPost.objects.create(pet = pet , user = user , details = details)
-    serialized_pet = PetSerializer( pet, many=False).data
-    response = serialized_pet
-    photo = None
-    if pet.photo :
-        photo = f"{settings.DOMAIN}{pet.photo.url}"
+from ..serializers import BreedingPostReadSerializer, BreedingPostWriteSerializer
 
-    response.update({"photo":photo})
-    response.update({"details":details})
-    response.update({"id":post.id})
-    return Response(response , status=status.HTTP_201_CREATED)
+# List all breeding posts (public)
+class BreedingPostListView(generics.ListAPIView):
+    queryset = BreedingPost.objects.select_related('pet', 'user').all()
+    serializer_class = BreedingPostReadSerializer
+    permission_classes = []  
 
-@permission_classes([IsAuthenticated])
-@api_view(['DELETE'])
-def delete_breeding_post (request , id):
-    breeding_post = BreedingPost.objects.filter(id = id)
-    if not breeding_post:
-        return Response({"message" : "no such id"} , status = status.HTTP_404_NOT_FOUND)
-    breeding_post = breeding_post[0]
-    if breeding_post.user != request.user:
-        return Response({"message":"user does not have this post"}, status = status.HTTP_401_UNAUTHORIZED)
-    breeding_post.delete()
-    return Response({"message" : "post deleted successfully"})
+# Retrieve a single breeding post (public)
+class BreedingPostDetailView(generics.RetrieveAPIView):
+    queryset = BreedingPost.objects.select_related('pet', 'user').all()
+    serializer_class = BreedingPostReadSerializer
+    permission_classes = []  
+    lookup_field = 'id'
 
-@api_view(['GET'])
-def get_breeding_posts (request):
-    posts = BreedingPost.objects.all()
-    response = []
-    for post in posts:
-        pet = Pet.objects.get(id = post.pet_id)
-        serialized_pet = PetSerializer(pet).data
-        username = post.user.username
-        country = post.user.country
-        holder = serialized_pet
-        photo = None
-        if pet.photo :
-            photo = f"{settings.DOMAIN}{pet.photo.url}"
+# Create a new breeding post (auth required)
+class BreedingPostCreateView(generics.CreateAPIView):
+    serializer_class = BreedingPostWriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-        user_photo = None
-        if post.user.user_photo:
-            user_photo = f"{settings.DOMAIN}{post.user.user_photo.url}"
+    def perform_create(self, serializer):
+        pet = get_object_or_404(Pet, id=self.kwargs['id'])
+        if BreedingPost.objects.filter(pet=pet).exists():
+            raise serializers.ValidationError({"message": "pet breeding post already exists"})
+        serializer.save(user=self.request.user, pet=pet)
 
-        holder.update({"photo":photo})
-        holder.update({"username":username})
-        holder.update({"country":country})
-        holder.update({"details":post.details})
-        holder.update({"id":post.id})
-        holder.update({"created_at":post.created_at})
-        holder.update({"logo":user_photo})
+# Delete a breeding post (auth + ownership required)
+class BreedingPostDeleteView(generics.DestroyAPIView):
+    queryset = BreedingPost.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
 
-        response.append(holder)
-    return Response(response, status= status.HTTP_200_OK)
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            self.permission_denied(self.request, message="user does not have this post")
+        instance.delete()
 
-@api_view(['GET'])
-def get_breeding_post (request, id):
-    post = BreedingPost.objects.filter(id = id)
-    if not post:
-        return Response({"message":"no such id"}, status= status.HTTP_404_NOT_FOUND)
-    post = post[0]
-    username = post.user.username
-    country = post.user.country
-    pet = Pet.objects.get(id = post.pet_id)
-    serialized_pet = PetSerializer(pet).data
-    response = serialized_pet
-    photo = None
-    if pet.photo :
-        photo = f"{settings.DOMAIN}{pet.photo.url}"
+from rest_framework.views import APIView
 
-    user_photo = None
-    if pet.user.user_photo:
-        user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+class BreedingPostFilterView(APIView):
+    permission_classes = []  
 
-    response.update({"photo":photo})
-    response.update({"username":username})
-    response.update({"country":country})
-    response.update({"details":post.details})
-    response.update({"id":post.id})
-    response.update({"created_at":post.created_at})
-    response.update({"logo":user_photo})
+    def post(self, request):
+        data = request.data
+        filter_params = {
+            'pet__type': data.get('type'),
+            'pet__breed': data.get('breed'),
+            'pet__gender': data.get('gender'),
+        }
 
-    return Response(response, status= status.HTTP_200_OK)
+        country = data.get('country')
+        if country:
+            filter_params['user__country'] = country
 
+        birth_date = data.get('age')
+        if birth_date:
+            birth_date_obj = parse_date(birth_date)
+            if not birth_date_obj:
+                return Response(
+                    {"message": "Invalid date format. Use YYYY-MM-DD."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            filter_params['pet__birth_date__gte'] = birth_date_obj
 
-@api_view(['POST'])
-def breeding_filter (request):
-    filter_params = {
-        'type': request.data.get('type',None),
-        'breed': request.data.get('breed',None),
-        'gender': request.data.get('gender',None),
-    }
-    birth_date = request.data.get('age',None)
-    country = request.data.get('country',None)
-    if country:
-        filter_params['user__country'] = country
-    if birth_date:
-        try:
-            birth_date_obj = datetime.datetime.strptime(birth_date, '%Y-%m-%d').date()
-            filter_params['birth_date__gte'] = birth_date_obj
-        except ValueError:
-            return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+        filter_params = {k: v for k, v in filter_params.items() if v is not None}
 
-    filter_params = {key: value for key, value in filter_params.items() if value is not None}
-    pets = Pet.objects.filter(**filter_params).order_by('birth_date')
-    response = []
-    for pet in pets:
-        post = BreedingPost.objects.filter(pet_id = pet.id)
-        if post:
-            post = post[0]
-            username = pet.user.username
-            country = pet.user.country
-            serialized_pet = PetSerializer(pet).data
-            holder = serialized_pet
-            photo = None
-            if pet.photo :
-                photo = f"{settings.DOMAIN}{pet.photo.url}"
+        posts = (
+            BreedingPost.objects
+            .select_related('pet', 'user')
+            .filter(**filter_params)
+            .order_by('pet__birth_date')
+        )
 
-            user_photo = None
-            if pet.user.user_photo:
-                user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
+        serializer = BreedingPostReadSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+# Search breeding posts
+class BreedingPostSearchView(APIView):
+    permission_classes = []  
 
-            holder.update({"photo":photo})
-            holder.update({"username":username})
-            holder.update({"country":country})
-            holder.update({"details":post.details})
-            holder.update({"created_at":post.created_at})
-            holder.update({"logo":user_photo})
+    def post(self, request):
+        text = request.data.get('text')
+        pet_filter = Q()
+        if text:
+            pet_filter = (
+                Q(pet__type__icontains=text) |
+                Q(pet__breed__icontains=text) |
+                Q(pet__gender__icontains=text) |
+                Q(pet__name__icontains=text)
+            )
 
-            response.append(holder)
-    return Response(response, status= 200)
+        posts = (
+            BreedingPost.objects
+            .select_related('pet', 'user')
+            .filter(pet_filter)
+        )
 
-@api_view(['POST'])
-def breeding_post_search(request):
-    text = request.data.get('text',None)
-    if text is not None:
-        pets = Pet.objects.filter(Q(type__icontains= text)|Q(breed__icontains= text)|Q(gender__icontains= text)|Q(name__icontains= text))
-    else:
-        pets= Pet.objects.all()
-    response = []
-    for pet in pets:
-        username = pet.user.username
-        country = pet.user.country
-        post = BreedingPost.objects.filter(pet = pet)
-        if not post:
-            continue
-        post = post[0]
-        serialized_pet = PetSerializer(pet).data
-        holder = serialized_pet
-
-        photo = None
-        if pet.photo :
-            photo = f"{settings.DOMAIN}{pet.photo.url}"
-
-        user_photo = None
-        if pet.user.user_photo:
-            user_photo = f"{settings.DOMAIN}{pet.user.user_photo.url}"
-
-        holder.update({"photo":photo})
-        holder.update({"username":username})
-        holder.update({"country":country})
-        holder.update({"details":post.details})
-        holder.update({"id":post.id})
-        holder.update({"created_at":post.created_at})
-        holder.update({"logo":user_photo})
-
-        response.append(holder)
-    return Response(response, status= status.HTTP_200_OK)
+        serializer = BreedingPostReadSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

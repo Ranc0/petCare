@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from django.urls import path
-from .views import PetListCreateView, PetRetrieveUpdateDestroyView , VaccinationRetrieveUpdateView
+from .views import *
 urlpatterns = [
 
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -40,34 +40,34 @@ urlpatterns = [
     #path('vaccination/cat/update/<str:id>' , views.vaccination.update_cat_vaccination, name = 'update_cat_vaccination'),
 
     #####
-    path ('post/adoption/add/<str:id>', views.post.add_adoption_post , name = 'add_adoption_post'),
-    path ('post/adoption/delete/<str:id>', views.post.delete_adoption_post , name = 'delete_adoption_post'),
-    path ('post/adoption/get/<str:id>', views.post.get_adoption_post , name = 'get_adoption_post'),
-    path ('post/adoption/get', views.post.get_adoption_posts , name = 'get_adoption_posts'),
-    path ('post/adoption/filter', views.post.adoption_filter , name = 'doption_filter'),
-    path ('post/adoption/search', views.post.adoption_post_search , name = 'adoption_post_search'),
+    path('post/adoption/add/<int:id>', AdoptionPostCreateView.as_view(), name='add_adoption_post'),
+    path('post/adoption/delete/<int:id>', AdoptionPostDeleteView.as_view(), name='delete_adoption_post'),
+    path('post/adoption/get', AdoptionPostListView.as_view(), name='get_adoption_posts'),
+    path('post/adoption/get/<int:id>', AdoptionPostDetailView.as_view(), name='get_adoption_post'),
+    path('post/adoption/filter', AdoptionPostFilterView.as_view(), name='adoption_filter'),
+    path('post/adoption/search', AdoptionPostSearchView.as_view(), name='adoption_post_search'),
 
-    path ('post/breeding/add/<str:id>', views.post.add_breeding_post , name = 'add_breeding_post'),
-    path ('post/breeding/delete/<str:id>', views.post.delete_breeding_post , name = 'delete_breeding_post'),
-    path ('post/breeding/get/<str:id>', views.post.get_breeding_post , name = 'get_breeding_post'),
-    path ('post/breeding/get', views.post.get_breeding_posts , name = 'get_breeding_posts'),
-    path ('post/breeding/filter', views.post.breeding_filter , name = 'breeding_filter'),
-    path ('post/breeding/search', views.post.breeding_post_search , name = 'breeding_post_search'),
-
-    #####
-    path('product/add' , views.product.add_product, name = 'add_product'),
-    path('product/delete/<str:id>' , views.product.delete_product, name = 'delete_product'),
-    path('product/get', views.product.get_products, name = 'get_products'),
-    path('product/get/<str:id>', views.product.get_product, name = 'get_product'),
-    path('product/filter', views.product.product_filter, name = 'product_filter'),
-    path('product/search', views.product.product_search, name = 'product_search'),
-    path('product/update/<str:id>', views.product.update_product_photo, name = 'update_product_photo'),
+    path('post/breeding/add/<int:id>', BreedingPostCreateView.as_view(), name='add_breeding_post'),
+    path('post/breeding/delete/<int:id>', BreedingPostDeleteView.as_view(), name='delete_breeding_post'),
+    path('post/breeding/get', BreedingPostListView.as_view(), name='get_breeding_posts'),
+    path('post/breeding/get/<int:id>', BreedingPostDetailView.as_view(), name='get_breeding_post'),
+    path('post/breeding/filter', BreedingPostFilterView.as_view(), name='breeding_filter'),
+    path('post/breeding/search', BreedingPostSearchView.as_view(), name='breeding_post_search'),
 
     #####
-    path('store/create', views.create_store, name= 'create_store'),
-    path('store/delete/<str:id>', views.delete_store, name = 'delete_store'),
-    path('store/get/<str:id>', views.get_store, name = 'get_store'),
-    path('store/update/<str:id>', views.update_store_photo, name = 'update_store_photo'),
+    path('product/add', ProductCreateView.as_view(), name='add_product'),
+    path('product/delete/<int:id>', ProductDeleteView.as_view(), name='delete_product'),
+    path('product/get', ProductListView.as_view(), name='get_products'),
+    path('product/get/<int:id>', ProductDetailView.as_view(), name='get_product'),
+    path('product/filter', ProductFilterView.as_view(), name='product_filter'),
+    path('product/search', ProductSearchView.as_view(), name='product_search'),
+    path('product/update/<int:id>', UpdateProductPhotoView.as_view(), name='update_product_photo'),
+
+    #####
+    path('store/create', StoreCreateView.as_view(), name='create_store'),
+    path('store/get/<int:id>', StoreDetailView.as_view(), name='get_store'),
+    path('store/delete/<int:id>', StoreDeleteView.as_view(), name='delete_store'),
+    path('store/update/<int:id>', StoreUpdateLogoView.as_view(), name='update_store_photo'),
 
     ######
     path('doctor/join', views.doctor.join_as_doctor, name = 'join_as_doctor'),

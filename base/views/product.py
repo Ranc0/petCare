@@ -5,7 +5,6 @@ from ..models import Pet  , Product, Store
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
-from ..serializers import ProductSerializer, StoreSerializer
 from rest_framework import status
 from django.db.models import Q
 from PIL import Image
@@ -13,165 +12,127 @@ import os
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
-#views to add :
-#add product
-#update product
-#delete product
-#getters (filters must be applied)
+from ..serializers import ProductReadSerializer, ProductWriteSerializer
 
-@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def add_product (request):
-    user = request.user
-    store = get_object_or_404(Store, user = user)
-    obj = ProductSerializer(data = request.data, many = False)
-    if obj.is_valid():
-        obj = obj.data
-        obj.update({ "user" : user })
-        Product.objects.create(**obj)
-        product = Product.objects.last()
-        photo = None
-        if product.photo :
-            photo = f"{settings.DOMAIN}{product.photo.url}"
+# Create product
+class ProductCreateView(generics.CreateAPIView):
+    serializer_class = ProductWriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-        response = ProductSerializer(product).data
-        #store = Store.objects.get(user=product.user)
-        logo = None
-        if store.logo:
-           logo = f"{settings.DOMAIN}{store.logo.url}"
-        response.update({"photo":photo})
-        response.update({"store_name":store.store_name})
-        response.update({"logo":logo})
-        return Response(response , status=status.HTTP_201_CREATED)
-    else:
-        return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        user = self.request.user
+        store = get_object_or_404(Store, user=user)
+        serializer.save(user=user)
 
-@permission_classes([IsAuthenticated])
-@api_view(['DELETE'])
-def delete_product (request, id):
-    product = get_object_or_404(Product, id=id)
-    if request.user != product.user:
-        return Response({"message":"user does not have this product"}, status= status.HTTP_401_UNAUTHORIZED)
-    product.delete()
-    return Response({"message":"product deleted successfully"}, status= status.HTTP_200_OK)
-
-#@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_products(request):
-    products = Product.objects.all()
-    response = []
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        product = Product.objects.select_related('user').get(id=response.data['id'])
+        return Response(ProductReadSerializer(product).data, status=status.HTTP_201_CREATED)
 
 
-    for product in products:
-        holder = {}
-        photo = None
-        if product.photo :
-            photo = f"{settings.DOMAIN}{product.photo.url}"
-        holder.update({"id":product.id})
-        holder.update({"photo":photo})
-        holder.update({"name":product.name})
-        holder.update({"price":product.price})
-        response.append(holder)
+# Delete product
+class ProductDeleteView(generics.DestroyAPIView):
+    queryset = Product.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
 
-    return Response(response, status=status.HTTP_200_OK)
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            self.permission_denied(self.request, message="user does not have this product")
+        instance.delete()
 
-#@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_product (request, id):
-    product = get_object_or_404(Product, id=id)
-    photo = None
-    if product.photo:
-        photo = f"{settings.DOMAIN}{product.photo.url}"
-    store = Store.objects.get(user=product.user)
-    logo = None
-    if store.logo:
-        logo = f"{settings.DOMAIN}{store.logo.url}"
-    response = ProductSerializer(product).data
-    response.update({"photo":photo})
-    response.update({"store_id":store.id})
-    response.update({"store_name":store.store_name})
-    response.update({"logo":logo})
-    response.update({"country":product.user.country})
-    return Response(response, status= status.HTTP_200_OK)
 
-#@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def product_filter (request):
-    filter_params = {
-        'category': request.data.get('category',None),
-    }
-    price = request.data.get('price',None)
-    country = request.data.get('country',None)
-    if price:
-        filter_params['price__lte'] = price
-    if country:
-        filter_params['user__country'] = country
+# List all products (public)
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.select_related('user', 'user__store').all()
+    serializer_class = ProductReadSerializer
+    permission_classes = []
 
-    filter_params = {key: value for key, value in filter_params.items() if value is not None}
-    products = Product.objects.filter(**filter_params)
 
-    response = []
-    for product in products:
-        photo = None
-        if product.photo:
-            photo = f"{settings.DOMAIN}{product.photo.url}"
+# Retrieve single product (public)
+class ProductDetailView(generics.RetrieveAPIView):
+    queryset = Product.objects.select_related('user', 'user__store').all()
+    serializer_class = ProductReadSerializer
+    permission_classes = []
+    lookup_field = 'id'
 
-        product = ProductSerializer(product).data
-        product.update({"photo":photo})
-        response.append(product)
-    return Response(response, status= status.HTTP_200_OK)
 
-#@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def product_search(request):
-    text = request.data.get('text',None)
-    if text is not None:
-        products = Product.objects.filter(Q(name__icontains= text)|Q(details__icontains= text)|Q(category__icontains = text))
-    else:
-        products = Product.objects.all()
-    response = []
-    for product in products:
-        photo = None
-        if product.photo:
-            photo = f"{settings.DOMAIN}{product.photo.url}"
-        product = ProductSerializer(product).data
-        product.update({"photo":photo})
-        response.append(product)
-    return Response(response, status= status.HTTP_200_OK)
+from rest_framework.views import APIView
 
-@permission_classes([IsAuthenticated])
-@api_view(['PUT'])
-def update_product_photo(request, id):
-    product = Product.objects.filter(id = id)
-    if product:
-        product = product[0]
-    else:
-        return Response({"message":"pet not found"}, status= status.HTTP_404_NOT_FOUND)
-    photo = request.FILES.get('photo')
-    if not photo:
-        return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        # Validate the uploaded file as an image
-        image = Image.open(photo)
-        image.verify()  # Verify the image integrity
+class ProductFilterView(APIView):
+    permission_classes = []  # Public
 
-        # Delete the old photo if it exists
-        if product.photo and os.path.isfile(product.photo.path):
-            os.remove(product.photo.path)
+    def post(self, request):
+        filter_params = {
+            'category': request.data.get('category'),
+        }
+        price = request.data.get('price')
+        country = request.data.get('country')
 
-        # Update the photo field
-        product.photo = photo
-        product.save()
+        if price:
+            filter_params['price__lte'] = price
+        if country:
+            filter_params['user__country'] = country
 
-        # Serialize the updated pet object
-        response = ProductSerializer(product).data
-        ph = None
-        if product.photo:
-             ph= f"{settings.DOMAIN}{product.photo.url}"
-        response.update({"photo": ph})
-        return Response(response, status=status.HTTP_200_OK)
+        filter_params = {k: v for k, v in filter_params.items() if v is not None}
 
-    except (IOError, SyntaxError):
-        return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
+        products = Product.objects.select_related('user', 'user__store').filter(**filter_params)
+        serializer = ProductReadSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+from django.db.models import Q
+
+class ProductSearchView(APIView):
+    permission_classes = []  # Public
+
+    def post(self, request):
+        text = request.data.get('text')
+        product_filter = Q()
+        if text:
+            product_filter = (
+                Q(name__icontains=text) |
+                Q(details__icontains=text) |
+                Q(category__icontains=text)
+            )
+
+        products = Product.objects.select_related('user', 'user__store').filter(product_filter)
+        serializer = ProductReadSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UpdateProductPhotoView(generics.UpdateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductReadSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def update(self, request, *args, **kwargs):
+        product = self.get_object()
+        if product.user != request.user:
+            return Response({"message": "user does not have this product"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        photo = request.FILES.get('photo')
+        if not photo:
+            return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Validate image
+            image = Image.open(photo)
+            image.verify()
+
+            # Delete old photo if exists
+            if product.photo and os.path.isfile(product.photo.path):
+                os.remove(product.photo.path)
+
+            product.photo = photo
+            product.save()
+
+            return Response(ProductReadSerializer(product).data, status=status.HTTP_200_OK)
+
+        except (IOError, SyntaxError):
+            return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,105 +1,91 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import api_view ,permission_classes
-from rest_framework.permissions import IsAuthenticated
 from ..models import Store, Product
 from django.contrib.auth import get_user_model
 from django.conf import settings
-
-
 User = get_user_model()
-from ..serializers import StoreSerializer, ProductSerializer
-from rest_framework import status
-from PIL import Image
-import os
+from rest_framework import generics, permissions, status, serializers
+from ..serializers import StoreReadSerializer, StoreWriteSerializer
 
-@permission_classes([IsAuthenticated])
-@api_view(['POST'])
-def create_store (request):
-    user = request.user
-    if Store.objects.filter(user = user).exists():
-        return Response({"message": "A store already exists for this user."}, status=status.HTTP_400_BAD_REQUEST)
-    obj = StoreSerializer(data = request.data, many = False)
-    if obj.is_valid():
-        obj = obj.data
-        obj.update({ "user" : user })
-        Store.objects.create(**obj)
-        store = Store.objects.last()
-        response = StoreSerializer(store).data
-        logo = None
-        if store.logo:
-            logo = f"{settings.DOMAIN}{store.logo.url}"
-        response.update({'logo':logo})
-        response.update({'products':[]})
-        return Response(response , status=status.HTTP_201_CREATED)
-    else:
-        return Response({"message":"form is not valid"} , status=status.HTTP_400_BAD_REQUEST)
+# Create store
+class StoreCreateView(generics.CreateAPIView):
+    serializer_class = StoreWriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-@permission_classes([IsAuthenticated])
-@api_view(['DELETE'])
-def delete_store(request,id):
-    user = request.user
-    store = get_object_or_404(Store, id = id)
-    if user != store.user:
-        return Response({"message":"user does not have this store"}, status= status.HTTP_401_UNAUTHORIZED)
-    products = Product.objects.filter(user = user)
-    for product in products:
-        product.delete()
-    store.delete()
-    return Response({"message":"store deleted successfully"}, status= status.HTTP_200_OK)
+    def perform_create(self, serializer):
+        user = self.request.user
+        if Store.objects.filter(user=user).exists():
+            raise serializers.ValidationError({"message": "A store already exists for this user."})
+        serializer.save(user=user)
 
-#@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def get_store(request, id):
-    store = get_object_or_404(Store, id = id)
-    logo = None
-    if store.logo:
-        logo = f"{settings.DOMAIN}{store.logo.url}"
-    user = store.user
-    products = Product.objects.filter(user = user)
-
-    holder = []
-    for product in products:
-        photo = None
-        if product.photo:
-            photo = f"{settings.DOMAIN}{product.photo.url}"
-        product = ProductSerializer(product).data
-        product.update({"photo":photo})
-        holder.append(product)
-    response = StoreSerializer(store).data
-    response.update({'logo':logo})
-    response.update({'products':holder})
-    return Response(response, status= status.HTTP_200_OK)
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        store = Store.objects.get(id=response.data['id'])
+        return Response(StoreReadSerializer(store).data, status=status.HTTP_201_CREATED)
 
 
-@permission_classes([IsAuthenticated])
-@api_view(['PUT'])
-def update_store_photo(request, id):
-    store = get_object_or_404(Store, id = id)
-    photo = request.FILES.get('logo')
-    if not photo:
-        return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
+# Retrieve store
+class StoreDetailView(generics.RetrieveAPIView):
+    queryset = Store.objects.select_related('user')
+    serializer_class = StoreReadSerializer
+    permission_classes = []
+    lookup_field = 'id'
 
-    try:
-        # Validate the uploaded file as an image
-        image = Image.open(photo)
-        image.verify()  # Verify the image integrity
+    def retrieve(self, request, *args, **kwargs):
+        store = self.get_object()
+        data = StoreReadSerializer(store).data
 
-        # Delete the old photo if it exists
-        if store.logo and os.path.isfile(store.logo.path):
-            os.remove(store.logo.path)
+        # Remove store fields from each product to avoid duplication
+        for product in data['products']:
+            product.pop('store_id', None)
+            product.pop('store_name', None)
+            product.pop('logo', None)
 
-        # Update the photo field
-        store.logo = photo
-        store.save()
+        return Response(data)
 
-        # Serialize the updated pet object
-        response = StoreSerializer(store).data
-        logo = None
-        if store.logo:
-            logo = f"{settings.DOMAIN}{store.logo.url}"
-        response.update({"logo": logo})
-        return Response(response, status=status.HTTP_200_OK)
 
-    except (IOError, SyntaxError):
-        return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
+
+# Delete store
+class StoreDeleteView(generics.DestroyAPIView):
+    queryset = Store.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            self.permission_denied(self.request, message="user does not have this store")
+        Product.objects.filter(user=self.request.user).delete()
+        instance.delete()
+
+
+# Update store logo
+class StoreUpdateLogoView(generics.UpdateAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreReadSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def update(self, request, *args, **kwargs):
+        store = self.get_object()
+        if store.user != request.user:
+            return Response({"message": "user does not have this store"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        photo = request.FILES.get('logo')
+        if not photo:
+            return Response({"message": "photo is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Validate image
+            image = Image.open(photo)
+            image.verify()
+
+            # Delete old logo
+            if store.logo and os.path.isfile(store.logo.path):
+                os.remove(store.logo.path)
+
+            store.logo = photo
+            store.save()
+
+            return Response(StoreReadSerializer(store).data, status=status.HTTP_200_OK)
+
+        except (IOError, SyntaxError):
+            return Response({"message": "Uploaded file is not a valid image"}, status=status.HTTP_400_BAD_REQUEST)
