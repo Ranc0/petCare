@@ -58,7 +58,7 @@ All dependencies are listed in `requirements.txt`.
 ### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/Ranc0/petCare.git
-cd petconnect
+cd petCare
 ```
 
 ### 2️⃣ Create a virtual environment
