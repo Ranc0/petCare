@@ -3,19 +3,20 @@ from datetime import timedelta
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+from dotenv import load_dotenv
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m8(4rq3(xejb$lln+-e#qeezkq6lu!c#d*n1$gp7%g3(^b5%27'
-
+SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['PetCareApplication.pythonanywhere.com','localhost','127.0.0.1']
-DOMAIN = 'https://petcareapplication.pythonanywhere.com'
+ALLOWED_HOSTS = ['*']
+DOMAIN = ''
 
 # Application definition
 
@@ -166,12 +167,12 @@ SIMPLE_JWT = {
 }
 CORS_ALLOW_ALL_ORIGINS = True
 
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'petcarels516@gmail.com'
-EMAIL_HOST_PASSWORD = 'mwug ysha aicu vjkx'
-DEFAULT_FROM_EMAIL = 'OTPreplier@gmail.com'
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 SEND_OTP_EMAIL = True
 
 AUTH_USER_MODEL = 'base.CustomUser'
